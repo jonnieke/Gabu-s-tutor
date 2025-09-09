@@ -1,6 +1,6 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { useCamera } from '../hooks/useCamera';
-import { CameraIcon, CloseIcon } from './Icons';
+import { CloseIcon } from './Icons';
 
 interface ScannerProps {
   onCapture: (imageDataUrl: string) => void;
@@ -55,10 +55,11 @@ const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
     }
 
     const rect = videoRef.current.getBoundingClientRect();
-    const x = event.clientX - rect.left;
+    const tappedX = event.clientX - rect.left;
+    const mirroredX = rect.width - tappedX;
     const y = event.clientY - rect.top;
 
-    setFocusIndicator({ x, y, key: Date.now() });
+    setFocusIndicator({ x: mirroredX, y, key: Date.now() });
 
     focusTimeoutRef.current = window.setTimeout(() => {
       setFocusIndicator(null);
@@ -81,15 +82,19 @@ const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
   }
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 bg-black rounded-3xl">
+    <div className="relative w-full h-full flex flex-col items-center justify-center bg-black rounded-3xl overflow-hidden">
       <video
         ref={videoRef}
         autoPlay
         playsInline
         muted
-        className="w-full h-full object-contain rounded-2xl cursor-pointer"
+        className="w-full h-full object-contain rounded-2xl cursor-pointer transform -scale-x-100"
         onClick={handleVideoTap}
       />
+       <div className="absolute top-0 left-0 right-0 p-6 pt-10 text-center bg-gradient-to-b from-black/70 to-transparent z-10 pointer-events-none">
+        <h2 className="text-xl font-bold text-white tracking-wide">Scan Text</h2>
+        <p className="text-white/80">Position the text within the corners.</p>
+      </div>
       {focusIndicator && (
         <div
           key={focusIndicator.key}
@@ -103,24 +108,32 @@ const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
         />
       )}
       <div className="absolute inset-0 flex items-center justify-center p-8 pointer-events-none">
-        <div className="w-full max-w-md h-1/2 border-4 border-white/70 rounded-3xl" />
+        <div className="w-full max-w-md h-1/2 relative">
+            <div className="absolute -top-1 -left-1 w-10 h-10 border-t-4 border-l-4 border-white rounded-tl-3xl animate-pulse-corners" />
+            <div className="absolute -top-1 -right-1 w-10 h-10 border-t-4 border-r-4 border-white rounded-tr-3xl animate-pulse-corners" />
+            <div className="absolute -bottom-1 -left-1 w-10 h-10 border-b-4 border-l-4 border-white rounded-bl-3xl animate-pulse-corners" />
+            <div className="absolute -bottom-1 -right-1 w-10 h-10 border-b-4 border-r-4 border-white rounded-br-3xl animate-pulse-corners" />
+        </div>
       </div>
       <canvas ref={canvasRef} className="hidden" />
-      <div className="absolute bottom-6 flex justify-center items-center w-full gap-8">
-        <button
-          onClick={onCancel}
-          className="p-4 bg-black/60 backdrop-blur-sm rounded-full text-white hover:bg-red-500 transition-all duration-200 transform active:scale-90"
-          aria-label="Cancel scan"
-        >
-          <CloseIcon className="w-8 h-8" />
-        </button>
-        <button
-          onClick={handleCapture}
-          className="p-5 bg-white rounded-full text-purple-600 shadow-lg ring-4 ring-white/50 hover:bg-purple-100 transition-all duration-200 transform hover:scale-110 active:scale-100"
-          aria-label="Capture image"
-        >
-          <CameraIcon className="w-10 h-10" />
-        </button>
+      <div className="absolute bottom-6 flex justify-center items-center w-full z-10">
+        <div className="w-full max-w-sm flex justify-between items-center">
+             <button
+                onClick={onCancel}
+                className="p-4 bg-black/60 backdrop-blur-sm rounded-full text-white hover:bg-red-500 transition-all duration-200 transform active:scale-90"
+                aria-label="Cancel scan"
+                >
+                <CloseIcon className="w-8 h-8" />
+            </button>
+            <button
+                onClick={handleCapture}
+                className="w-20 h-20 p-1.5 bg-white rounded-full shadow-lg ring-4 ring-white/50 hover:scale-110 active:scale-100 transition-transform duration-200"
+                aria-label="Capture image"
+                >
+                <div className="w-full h-full bg-white rounded-full border-4 border-black" />
+            </button>
+            <div className="w-16 h-16" />
+        </div>
       </div>
     </div>
   );

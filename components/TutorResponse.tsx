@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ttsService from '../services/ttsService';
-import { PlayIcon, PauseIcon, StopIcon, GabuIcon, SendIcon, AttachmentIcon, ImageIcon, AudioFileIcon, SettingsIcon, MicrophoneIcon, TrashIcon, QuizIcon } from './Icons';
+import { PlayIcon, PauseIcon, StopIcon, GabuIcon, SendIcon, AttachmentIcon, ImageIcon, AudioFileIcon, SettingsIcon, MicrophoneIcon, TrashIcon, QuizIcon, CopyIcon, CheckIcon } from './Icons';
 import { ChatMessage, FileAttachment, UserSettings, Quiz } from '../types';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { generateQuiz } from '../services/geminiService';
@@ -38,6 +38,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
   const [quizError, setQuizError] = useState<string | null>(null);
+  const [copiedMessageIndex, setCopiedMessageIndex] = useState<number | null>(null);
   
   const { isRecording, audioData, startRecording, stopRecording, resetRecording } = useAudioRecorder();
   
@@ -46,6 +47,27 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
   
   const lastModelMessage = chatHistory.slice().reverse().find(m => m.role === 'model');
   const textToSpeak = lastModelMessage?.content || '';
+
+  const handleCopy = (text: string, index: number) => {
+    if (!navigator.clipboard) {
+        console.error('Clipboard API not available');
+        return;
+    }
+    navigator.clipboard.writeText(text).then(() => {
+        setCopiedMessageIndex(index);
+        setTimeout(() => {
+            setCopiedMessageIndex(null);
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+    });
+  };
+
+  const formatTime = (date: Date | string) => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    if (!dateObj || isNaN(dateObj.getTime())) return '';
+    return dateObj.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+  };
 
   const handleTTSAction = useCallback((action: 'play' | 'pause' | 'stop' | 'resume') => {
     const handleEnd = () => {
@@ -217,22 +239,40 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
         <div className="flex flex-col h-full max-h-[70vh] md:max-h-full">
           <div ref={chatContainerRef} className="bg-gray-100 p-4 rounded-2xl overflow-y-auto flex-grow space-y-4">
             {chatHistory.map((msg, index) => (
-              <div key={index} className={`flex items-end gap-2 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-                {msg.role === 'model' && <GabuIcon className="w-8 h-8 text-purple-500 flex-shrink-0" />}
-                <div className={`max-w-xs lg:max-w-md p-3 rounded-2xl ${msg.role === 'user' ? 'bg-orange-500 text-white' : 'bg-white text-gray-800'}`}>
-                  {msg.attachment?.type === 'image' && (
-                    <img src={`data:${msg.attachment.mimeType};base64,${msg.attachment.data}`} alt="User upload" className="rounded-lg mb-2 max-h-40"/>
-                  )}
-                  {msg.attachment?.type === 'audio' && (
-                     <div className={`flex items-center gap-2 p-2 rounded-lg mb-2 ${msg.role === 'user' ? 'bg-orange-400' : 'bg-gray-200'}`}>
-                        <AudioFileIcon className={`w-6 h-6 ${msg.role === 'user' ? 'text-white' : 'text-gray-600'}`}/>
-                        <span className="text-sm font-medium">Audio attached</span>
-                    </div>
-                  )}
-                  {msg.content && <p className="text-base leading-relaxed break-words">
-                    {msg === lastModelMessage ? renderTextWithHighlight(msg.content) : msg.content}
-                  </p>}
+               <div key={index} className={`flex flex-col w-full ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`flex items-end gap-2 w-full ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                  {msg.role === 'model' && <GabuIcon className="w-8 h-8 text-purple-500 flex-shrink-0" />}
+                  <div className={`group relative max-w-xs lg:max-w-md p-3 rounded-2xl ${msg.role === 'user' ? 'bg-orange-500 text-white' : 'bg-white text-gray-800'}`}>
+                    {msg.attachment?.type === 'image' && (
+                      <img src={`data:${msg.attachment.mimeType};base64,${msg.attachment.data}`} alt="User upload" className="rounded-lg mb-2 max-h-40"/>
+                    )}
+                    {msg.attachment?.type === 'audio' && (
+                       <div className={`flex items-center gap-2 p-2 rounded-lg mb-2 ${msg.role === 'user' ? 'bg-orange-400' : 'bg-gray-200'}`}>
+                          <AudioFileIcon className={`w-6 h-6 ${msg.role === 'user' ? 'text-white' : 'text-gray-600'}`}/>
+                          <span className="text-sm font-medium">Audio attached</span>
+                      </div>
+                    )}
+                    {msg.content && <p className="text-base leading-relaxed break-words">
+                      {msg === lastModelMessage ? renderTextWithHighlight(msg.content) : msg.content}
+                    </p>}
+                     {msg.role === 'model' && msg.content && (
+                        <button
+                            onClick={() => handleCopy(msg.content, index)}
+                            className="absolute top-1.5 right-1.5 p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-200"
+                            aria-label={copiedMessageIndex === index ? "Copied" : "Copy message"}
+                        >
+                            {copiedMessageIndex === index ? (
+                                <CheckIcon className="w-5 h-5 text-green-600 animate-check-pop" />
+                            ) : (
+                                <CopyIcon className="w-5 h-5" />
+                            )}
+                        </button>
+                    )}
+                  </div>
                 </div>
+                 <p className={`text-xs text-gray-400 mt-1 px-2 ${msg.role === 'user' ? 'mr-0' : 'ml-10'}`}>
+                    {formatTime(msg.timestamp)}
+                </p>
               </div>
             ))}
             {isReplying && (
@@ -270,13 +310,13 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
                         {attachment.type === 'image' ? <ImageIcon className="w-5 h-5"/> : <AudioFileIcon className="w-5 h-5"/>}
                         <span>{attachment.type === 'image' ? 'Image' : 'Audio'} attached</span>
                     </div>
-                    <button onClick={clearAttachment} className="text-red-500 hover:text-red-700 font-bold p-1 rounded-full">
+                    <button onClick={clearAttachment} aria-label="Remove attachment" className="text-red-500 hover:text-red-700 font-bold p-1 rounded-full">
                         <TrashIcon className="w-5 h-5"/>
                     </button>
                 </div>
             )}
           <form onSubmit={handleFormSubmit} className="flex items-center gap-2 mt-2">
-             <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 disabled:bg-gray-300 transform active:scale-95 transition">
+             <button type="button" onClick={() => fileInputRef.current?.click()} aria-label="Attach a file" className="p-3 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 disabled:bg-gray-300 transform active:scale-95 transition">
               <AttachmentIcon className="w-6 h-6" />
             </button>
             <input
@@ -285,12 +325,13 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
               onChange={(e) => setUserInput(e.target.value)}
               placeholder="Ask a follow-up question..."
               disabled={isReplying || isRecording}
+              aria-label="Your message"
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
             />
-            <button type="button" onClick={handleMicClick} disabled={isReplying} className={`p-3 rounded-full text-white transform active:scale-95 transition ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-indigo-500 hover:bg-indigo-600'}`}>
+            <button type="button" onClick={handleMicClick} disabled={isReplying} aria-label={isRecording ? 'Stop recording' : 'Start recording'} className={`p-3 rounded-full text-white transform active:scale-95 transition ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-indigo-500 hover:bg-indigo-600'}`}>
                 <MicrophoneIcon className="w-6 h-6"/>
             </button>
-            <button type="submit" disabled={isReplying || isRecording || (!userInput.trim() && !attachment)} className="p-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:bg-gray-300 transform active:scale-95 transition">
+            <button type="submit" disabled={isReplying || isRecording || (!userInput.trim() && !attachment)} aria-label="Send message" className="p-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:bg-gray-300 transform active:scale-95 transition">
               <SendIcon className="w-6 h-6" />
             </button>
           </form>

@@ -25,6 +25,21 @@
       .animate-gentle-bounce {
         animation: gentle-bounce 2s ease-in-out infinite;
       }
+      @keyframes check-pop {
+        0% { transform: scale(0.8); opacity: 0; }
+        50% { transform: scale(1.2); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .animate-check-pop {
+        animation: check-pop 300ms ease-out;
+      }
+      @keyframes pulse-corners {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+      }
+      .animate-pulse-corners {
+        animation: pulse-corners 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
       body {
         font-family: 'Nunito', sans-serif;
       }

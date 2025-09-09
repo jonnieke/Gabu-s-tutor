@@ -4,8 +4,8 @@ import { explainTextFromImage, explainAudio, continueChat } from './services/gem
 import Scanner from './components/Scanner';
 import TutorResponse from './components/TutorResponse';
 import Loader from './components/Loader';
-import { GabuIcon, CameraIcon, ImageIcon, AudioIcon, SettingsIcon } from './components/Icons';
 import SettingsModal from './components/SettingsModal';
+import IdleScreen from './components/IdleScreen';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
@@ -48,7 +48,7 @@ const App: React.FC = () => {
       if (!explanation) {
           throw new Error("The AI could not provide an explanation. The image might not contain clear text.");
       }
-      setChatHistory([{ role: 'model', content: explanation }]);
+      setChatHistory([{ role: 'model', content: explanation, timestamp: new Date() }]);
       setAppState(AppState.RESULT);
     } catch (error) {
       console.error(error);
@@ -68,7 +68,7 @@ const App: React.FC = () => {
          if (!explanation) {
             throw new Error("The AI could not understand the audio.");
         }
-        setChatHistory([{ role: 'model', content: explanation }]);
+        setChatHistory([{ role: 'model', content: explanation, timestamp: new Date() }]);
         setAppState(AppState.RESULT);
     } catch (error) {
         console.error(error);
@@ -105,17 +105,17 @@ const App: React.FC = () => {
   const handleSendMessage = useCallback(async (message: string, attachment?: FileAttachment) => {
     if ((!message.trim() && !attachment) || isChatProcessing) return;
 
-    const newUserMessage: ChatMessage = { role: 'user', content: message, attachment };
+    const newUserMessage: ChatMessage = { role: 'user', content: message, attachment, timestamp: new Date() };
     const updatedHistory = [...chatHistory, newUserMessage];
     setChatHistory(updatedHistory);
     setIsChatProcessing(true);
 
     try {
       const modelResponse = await continueChat(updatedHistory, userSettings);
-      const newModelMessage: ChatMessage = { role: 'model', content: modelResponse };
+      const newModelMessage: ChatMessage = { role: 'model', content: modelResponse, timestamp: new Date() };
       setChatHistory(prev => [...prev, newModelMessage]);
     } catch (error) {
-      const errorResponseMessage: ChatMessage = { role: 'model', content: "Oh no! I had a little trouble thinking just now. Could you please ask me that again?" };
+      const errorResponseMessage: ChatMessage = { role: 'model', content: "Oh no! I had a little trouble thinking just now. Could you please ask me that again?", timestamp: new Date() };
       setChatHistory(prev => [...prev, errorResponseMessage]);
     } finally {
       setIsChatProcessing(false);
@@ -123,7 +123,7 @@ const App: React.FC = () => {
   }, [chatHistory, isChatProcessing, userSettings]);
 
   const handleSystemMessage = useCallback((content: string) => {
-    const newModelMessage: ChatMessage = { role: 'model', content };
+    const newModelMessage: ChatMessage = { role: 'model', content, timestamp: new Date() };
     setChatHistory(prev => [...prev, newModelMessage]);
   }, []);
 
@@ -162,60 +162,29 @@ const App: React.FC = () => {
       case AppState.IDLE:
       default:
         return (
-          <div className="flex flex-col items-center justify-center text-center p-8 relative h-full">
-             <button onClick={() => setIsSettingsOpen(true)} className="absolute top-4 right-4 text-purple-500 hover:text-purple-700 transition-colors" aria-label="Settings">
-                <SettingsIcon className="w-8 h-8"/>
-            </button>
+          <>
             <input type="file" accept="image/*" ref={imageInputRef} onChange={(e) => handleFileSelected(e, 'image')} className="hidden" />
             <input type="file" accept="audio/*" ref={audioInputRef} onChange={(e) => handleFileSelected(e, 'audio')} className="hidden" />
-            
-            <GabuIcon className="w-32 h-32 text-purple-500 mb-4 animate-gentle-bounce" />
-            <h1 className="text-4xl md:text-5xl font-extrabold mb-2 text-gray-800">Let's Learn Something New!</h1>
-            <p className="text-lg text-gray-600 mb-10 max-w-xl">
-              I'm Gabu! I make learning easy with simple, step-by-step instructions. How do you want to start?
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 w-full max-w-3xl">
-                <div className="flex flex-col items-center">
-                    <div className="bg-orange-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl border-4 border-white shadow-md mb-[-20px] z-10">1</div>
-                    <button
-                        onClick={() => setAppState(AppState.SCANNING)}
-                        className="flex flex-col items-center justify-center gap-3 px-6 pt-8 pb-5 bg-orange-500 text-white font-bold text-lg rounded-2xl shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-500/50 transform hover:scale-105 active:scale-95 transition-all duration-200"
-                        >
-                        <CameraIcon className="w-8 h-8"/>
-                        <span>Scan with Camera</span>
-                    </button>
-                </div>
-                <div className="flex flex-col items-center">
-                    <div className="bg-teal-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl border-4 border-white shadow-md mb-[-20px] z-10">2</div>
-                    <button
-                        onClick={() => imageInputRef.current?.click()}
-                        className="flex flex-col items-center justify-center gap-3 px-6 pt-8 pb-5 bg-teal-500 text-white font-bold text-lg rounded-2xl shadow-lg hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-500/50 transform hover:scale-105 active:scale-95 transition-all duration-200"
-                        >
-                        <ImageIcon className="w-8 h-8"/>
-                        <span>Upload an Image</span>
-                    </button>
-                </div>
-                <div className="flex flex-col items-center">
-                    <div className="bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl border-4 border-white shadow-md mb-[-20px] z-10">3</div>
-                    <button
-                        onClick={() => audioInputRef.current?.click()}
-                        className="flex flex-col items-center justify-center gap-3 px-6 pt-8 pb-5 bg-indigo-500 text-white font-bold text-lg rounded-2xl shadow-lg hover:bg-indigo-600 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 transform hover:scale-105 active:scale-95 transition-all duration-200"
-                        >
-                        <AudioIcon className="w-8 h-8"/>
-                        <span>Upload Audio</span>
-                    </button>
-                </div>
-            </div>
-          </div>
+            <IdleScreen
+                onStartScan={() => setAppState(AppState.SCANNING)}
+                onUploadImage={() => imageInputRef.current?.click()}
+                onUploadAudio={() => audioInputRef.current?.click()}
+                onOpenSettings={() => setIsSettingsOpen(true)}
+            />
+          </>
         );
     }
   };
 
+  const headerTextColor = appState === AppState.SCANNING ? 'text-white/90' : 'text-gray-800';
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-100 p-4">
       <main className="w-full max-w-4xl mx-auto">
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden min-h-[85vh] flex flex-col justify-center">
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden min-h-[85vh] flex flex-col justify-center relative">
+            <header className="absolute top-6 left-8 z-20">
+                <h1 className={`text-2xl font-extrabold ${headerTextColor} transition-colors`}>Gabu's Tutor</h1>
+            </header>
             {renderContent()}
         </div>
       </main>

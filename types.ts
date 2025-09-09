@@ -16,6 +16,7 @@ export interface ChatMessage {
   role: 'user' | 'model';
   content: string;
   attachment?: FileAttachment;
+  timestamp: Date;
 }
 
 export interface UserSettings {
