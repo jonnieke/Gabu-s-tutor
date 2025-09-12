@@ -91,7 +91,7 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
                     className="flex flex-col items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 pt-6 sm:pt-8 pb-4 sm:pb-5 bg-orange-500 text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-500/50 transform hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation w-full"
                 >
                     <CameraIcon className="w-6 h-6 sm:w-8 sm:h-8"/>
-                    <span>Scan with Camera</span>
+                     <span>Scan n Learn</span>
                 </button>
                 </div>
                 <div className="flex flex-col items-center w-full">

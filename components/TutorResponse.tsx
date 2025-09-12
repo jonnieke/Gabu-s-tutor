@@ -271,7 +271,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
                 </button>
             </div>
           {image ? (
-            <img src={image} alt="Scanned text" className="rounded-xl sm:rounded-2xl shadow-lg w-full max-w-xs" />
+            <img src={image} alt="Scanned text" className="rounded-xl sm:rounded-2xl shadow-lg w-full max-w-xs max-h-32 object-contain" />
           ) : (
             <div className="rounded-xl sm:rounded-2xl shadow-lg w-full max-w-sm bg-gray-100 aspect-square flex flex-col items-center justify-center text-center p-4">
                 <AudioFileIcon className="w-16 h-16 sm:w-24 sm:h-24 text-indigo-400 mb-4"/>
@@ -288,7 +288,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
                   {msg.role === 'model' && <GabuIcon className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />}
                   <div className={`group relative max-w-xs lg:max-w-md p-2 sm:p-3 rounded-xl sm:rounded-2xl ${msg.role === 'user' ? 'bg-orange-500 text-white' : 'bg-white text-gray-800'}`}>
                     {msg.attachment?.type === 'image' && (
-                      <img src={`data:${msg.attachment.mimeType};base64,${msg.attachment.data}`} alt="User upload" className="rounded-lg mb-2 max-h-40"/>
+                      <img src={`data:${msg.attachment.mimeType};base64,${msg.attachment.data}`} alt="User upload" className="rounded-lg mb-2 max-h-32 object-contain"/>
                     )}
                     {msg.attachment?.type === 'audio' && (
                        <div className={`flex items-center gap-2 p-2 rounded-lg mb-2 ${msg.role === 'user' ? 'bg-orange-400' : 'bg-gray-200'}`}>

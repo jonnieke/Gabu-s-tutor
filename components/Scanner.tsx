@@ -56,10 +56,9 @@ const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
 
     const rect = videoRef.current.getBoundingClientRect();
     const tappedX = event.clientX - rect.left;
-    const mirroredX = rect.width - tappedX;
     const y = event.clientY - rect.top;
 
-    setFocusIndicator({ x: mirroredX, y, key: Date.now() });
+    setFocusIndicator({ x: tappedX, y, key: Date.now() });
 
     focusTimeoutRef.current = window.setTimeout(() => {
       setFocusIndicator(null);
