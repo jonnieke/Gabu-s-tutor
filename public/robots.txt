@@ -1,0 +1,33 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://gabus-tutor.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Allow all search engines to access all content
+Disallow:
+
+# Block access to admin or private areas (if any)
+# Disallow: /admin/
+# Disallow: /private/
+
+# Allow access to static assets
+Allow: /assets/
+Allow: /images/
+Allow: /css/
+Allow: /js/
+
+# Block access to API endpoints that don't need indexing
+Disallow: /api/
+Disallow: /_next/
+Disallow: /node_modules/
+
+# Allow access to main pages
+Allow: /
+Allow: /about
+Allow: /features
+Allow: /help
+Allow: /contact

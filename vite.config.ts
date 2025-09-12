@@ -16,6 +16,47 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      }
+      },
+      build: {
+        // Optimize for production
+        minify: 'terser',
+        terserOptions: {
+          compress: {
+            drop_console: true,
+            drop_debugger: true,
+          },
+        },
+        // Generate source maps for better debugging
+        sourcemap: mode === 'development',
+        // Optimize chunk splitting
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              vendor: ['react', 'react-dom'],
+              ai: ['@google/genai'],
+            },
+          },
+        },
+        // Optimize asset handling
+        assetsInlineLimit: 4096,
+        // Enable CSS code splitting
+        cssCodeSplit: true,
+      },
+      // Performance optimizations
+      optimizeDeps: {
+        include: ['react', 'react-dom', '@google/genai'],
+      },
+      // Server configuration for development
+      server: {
+        port: 5173,
+        host: true,
+        // Enable HTTPS in development for better testing
+        // https: true,
+      },
+      // Preview configuration
+      preview: {
+        port: 4173,
+        host: true,
+      },
     };
 });

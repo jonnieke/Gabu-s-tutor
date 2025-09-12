@@ -1,6 +1,21 @@
 # 🎓 Gabu's Tutor - AI-Powered Learning Assistant
 
-An intelligent tutoring application that helps learners understand any subject through multiple input methods including camera scanning, voice recording, image upload, and interactive diagram generation.
+**Transform your learning with Gabu's Tutor** - the smart AI assistant that helps students understand any subject through camera scanning, voice recording, and interactive diagrams. Perfect for homework help, exam prep, and personalized learning.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/jonnieke/Gabu-s-tutor)
+[![Deploy with Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/jonnieke/Gabu-s-tutor)
+
+## 🔍 **SEO Optimized for Discovery**
+
+This application is fully optimized for search engines and social media sharing:
+
+- ✅ **Comprehensive Meta Tags** - Rich snippets for Google, Bing, and other search engines
+- ✅ **Open Graph & Twitter Cards** - Perfect social media previews
+- ✅ **Structured Data (JSON-LD)** - Enhanced search result appearance
+- ✅ **Mobile-First Design** - Optimized for mobile search rankings
+- ✅ **Fast Loading** - Core Web Vitals optimized for better SEO
+- ✅ **PWA Ready** - Installable app with offline capabilities
+- ✅ **Sitemap & Robots.txt** - Easy search engine crawling
 
 ## ✨ Features
 
@@ -129,22 +144,69 @@ Gabu-s-tutor/
 5. **Track Progress**: Monitor your learning journey
 6. **Save Bookmarks**: Keep important topics for later
 
-## 🚀 Deployment
+## 🚀 Deployment & SEO Setup
 
-### Build for Production
+### Quick Deploy (Recommended)
+
+**Deploy to Vercel (Free):**
+1. Click the "Deploy with Vercel" button above
+2. Connect your GitHub account
+3. Set environment variables:
+   - `GEMINI_API_KEY`: Your Google AI Studio API key
+4. Deploy automatically!
+
+**Deploy to Netlify (Free):**
+1. Click the "Deploy with Netlify" button above
+2. Connect your GitHub account
+3. Set environment variables in Netlify dashboard
+4. Deploy automatically!
+
+### Manual Deployment
+
+#### Build for Production
 ```bash
 npm run build
 ```
 
-### Preview Production Build
+#### Preview Production Build
 ```bash
 npm run preview
 ```
 
-### Deploy to Vercel/Netlify
-1. Connect your GitHub repository
-2. Set environment variables
-3. Deploy automatically on push
+### SEO Configuration After Deployment
+
+1. **Update URLs in SEO files:**
+   - Replace `https://gabus-tutor.com/` with your actual domain
+   - Update `sitemap.xml` with your domain
+   - Update `robots.txt` with your domain
+
+2. **Submit to Search Engines:**
+   ```bash
+   # Google Search Console
+   https://search.google.com/search-console
+   
+   # Bing Webmaster Tools
+   https://www.bing.com/webmasters
+   ```
+
+3. **Verify SEO Setup:**
+   - Test with Google's Rich Results Test
+   - Validate structured data
+   - Check mobile-friendliness
+   - Test page speed with PageSpeed Insights
+
+### Environment Variables for Production
+
+```env
+# Required
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Optional (for advanced features)
+GCS_UPLOAD_URL=your_gcs_upload_url
+GCS_PUBLIC_BASE_URL=your_gcs_public_url
+CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+CLOUDINARY_UPLOAD_PRESET=your_cloudinary_preset
+```
 
 ## 🤝 Contributing
 
