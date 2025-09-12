@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import ttsService from '../services/ttsService';
-import { PlayIcon, PauseIcon, StopIcon, GabuIcon, SendIcon, AttachmentIcon, ImageIcon, AudioFileIcon, SettingsIcon, MicrophoneIcon, TrashIcon, QuizIcon, CopyIcon, CheckIcon } from './Icons';
+import ttsService, { isTTSSupported } from '../services/ttsService';
+import { PlayIcon, PauseIcon, StopIcon, GabuIcon, SendIcon, AttachmentIcon, ImageIcon, AudioFileIcon, SettingsIcon, MicrophoneIcon, TrashIcon, QuizIcon, CopyIcon, BookmarkIcon, BookmarkFilledIcon, CheckCircleIcon, HomeIcon } from './Icons';
 import { ChatMessage, FileAttachment, UserSettings, Quiz } from '../types';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { generateQuiz } from '../services/geminiService';
+import { saveBookmark, getBookmarks } from '../services/progressService';
 import QuizView from './QuizView';
 
 interface TutorResponseProps {
@@ -14,6 +15,7 @@ interface TutorResponseProps {
   isReplying: boolean;
   onReset: () => void;
   onOpenSettings: () => void;
+  onHome: () => void;
   userSettings: UserSettings;
 }
 
@@ -30,7 +32,7 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
     });
 };
 
-const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSendMessage, onSystemMessage, isReplying, onReset, onOpenSettings, userSettings }) => {
+const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSendMessage, onSystemMessage, isReplying, onReset, onOpenSettings, onHome, userSettings }) => {
   const [ttsState, setTtsState] = useState<'IDLE' | 'PLAYING' | 'PAUSED'>('IDLE');
   const [highlightRange, setHighlightRange] = useState<{ start: number; end: number } | null>(null);
   const [userInput, setUserInput] = useState('');
@@ -39,8 +41,11 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
   const [quizError, setQuizError] = useState<string | null>(null);
   const [copiedMessageIndex, setCopiedMessageIndex] = useState<number | null>(null);
+  const [ttsUnavailable, setTtsUnavailable] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [bookmarkedMessages, setBookmarkedMessages] = useState<Set<number>>(new Set());
   
-  const { isRecording, audioData, startRecording, stopRecording, resetRecording } = useAudioRecorder();
+  const { isRecording, audioData, startRecording, stopRecording, resetRecording, error: micError } = useAudioRecorder();
   
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -105,6 +110,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
   }, [textToSpeak, userSettings.voiceURI]);
 
   useEffect(() => {
+    setTtsUnavailable(!isTTSSupported());
     return () => ttsService.cancel();
   }, []);
 
@@ -163,11 +169,30 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
       const [, base64Data] = dataUrl.split(',');
-      const fileType = file.type.startsWith('image/') ? 'image' : 
-                       file.type.startsWith('audio/') ? 'audio' : null;
-      if (fileType && base64Data) {
+      const isImage = file.type.startsWith('image/');
+      const isAudio = file.type.startsWith('audio/');
+      const sizeMB = file.size / (1024 * 1024);
+      const MAX_IMAGE_MB = 8;
+      const MAX_AUDIO_MB = 20;
+
+      if (!isImage && !isAudio) {
+        setUploadError('Please choose an image or audio file.');
+        return;
+      }
+      if (isImage && sizeMB > MAX_IMAGE_MB) {
+        setUploadError(`Image is too large. Max ${MAX_IMAGE_MB} MB.`);
+        return;
+      }
+      if (isAudio && sizeMB > MAX_AUDIO_MB) {
+        setUploadError(`Audio is too large. Max ${MAX_AUDIO_MB} MB.`);
+        return;
+      }
+      setUploadError(null);
+
+      const inferredType: 'image' | 'audio' = isImage ? 'image' : 'audio';
+      if (base64Data) {
         setAttachment({
-          type: fileType,
+          type: inferredType,
           data: base64Data,
           mimeType: file.type
         });
@@ -183,6 +208,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
         stopRecording();
     } else {
         setAttachment(null);
+        setUploadError(null);
         startRecording();
     }
   };
@@ -204,6 +230,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
         setIsGeneratingQuiz(false);
     }
   };
+
   
   const handleQuizComplete = (score: number, total: number) => {
     const message = `Great job on the quiz! You scored ${score}/${total}. Let me know if you want to review anything!`;
@@ -211,38 +238,55 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
     setQuiz(null);
   }
 
+  const handleBookmark = (messageIndex: number, message: ChatMessage) => {
+    if (message.role !== 'model' || !message.content) return;
+    
+    const title = message.content.split('\n')[0].slice(0, 50) + (message.content.length > 50 ? '...' : '');
+    const topic = image ? 'Scanned Content' : 'Quick Question';
+    
+    saveBookmark({
+      title,
+      content: message.content,
+      topic,
+      type: 'explanation',
+      tags: [topic]
+    });
+    
+    setBookmarkedMessages(prev => new Set([...prev, messageIndex]));
+  };
+
   if (quiz) {
-    return <QuizView quiz={quiz} onComplete={handleQuizComplete} />;
+    return <QuizView quiz={quiz} onComplete={handleQuizComplete} onHome={onHome} />;
   }
 
   return (
-    <div className="p-4 sm:p-8 w-full h-full flex flex-col">
+    <div className="p-3 sm:p-4 md:p-8 w-full h-full flex flex-col overflow-hidden">
        <input type="file" accept="image/*,audio/*" ref={fileInputRef} onChange={handleFileSelected} className="hidden" />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start flex-grow min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-start flex-grow min-h-0">
         <div className="flex flex-col items-center h-full">
             <div className="w-full max-w-sm flex justify-between items-center mb-2">
-                <p className="font-bold text-gray-500">What you're studying</p>
-                <button onClick={onOpenSettings} className="text-gray-400 hover:text-purple-500 transition-colors" aria-label="Settings">
-                    <SettingsIcon className="w-6 h-6"/>
+                <p className="text-sm sm:text-base font-bold text-gray-500">What you're studying</p>
+                <button onClick={onOpenSettings} className="p-2 rounded-full text-gray-400 hover:text-purple-500 hover:bg-purple-50 transition-colors touch-manipulation" aria-label="Settings">
+                    <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6"/>
                 </button>
             </div>
           {image ? (
-            <img src={image} alt="Scanned text" className="rounded-2xl shadow-lg w-full max-w-sm" />
+            <img src={image} alt="Scanned text" className="rounded-xl sm:rounded-2xl shadow-lg w-full max-w-xs" />
           ) : (
-            <div className="rounded-2xl shadow-lg w-full max-w-sm bg-gray-100 aspect-square flex flex-col items-center justify-center text-center p-4">
-                <AudioFileIcon className="w-24 h-24 text-indigo-400 mb-4"/>
-                <h3 className="text-lg font-bold text-gray-700">Audio Topic</h3>
-                <p className="text-gray-500">Gabu is explaining the uploaded audio.</p>
+            <div className="rounded-xl sm:rounded-2xl shadow-lg w-full max-w-sm bg-gray-100 aspect-square flex flex-col items-center justify-center text-center p-4">
+                <AudioFileIcon className="w-16 h-16 sm:w-24 sm:h-24 text-indigo-400 mb-4"/>
+                <h3 className="text-base sm:text-lg font-bold text-gray-700">Audio Topic</h3>
+                <p className="text-sm sm:text-base text-gray-500">Gabu is explaining the uploaded audio.</p>
             </div>
           )}
         </div>
-        <div className="flex flex-col h-full max-h-[70vh] md:max-h-full">
-          <div ref={chatContainerRef} className="bg-gray-100 p-4 rounded-2xl overflow-y-auto flex-grow space-y-4">
+        <div className="flex flex-col h-full max-h-[60vh] sm:max-h-[70vh] lg:max-h-full">
+          <div ref={chatContainerRef} className="bg-gray-100 p-3 sm:p-4 rounded-xl sm:rounded-2xl overflow-y-auto flex-grow space-y-3 sm:space-y-4">
             {chatHistory.map((msg, index) => (
                <div key={index} className={`flex flex-col w-full ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                 <div className={`flex items-end gap-2 w-full ${msg.role === 'user' ? 'justify-end' : ''}`}>
-                  {msg.role === 'model' && <GabuIcon className="w-8 h-8 text-purple-500 flex-shrink-0" />}
-                  <div className={`group relative max-w-xs lg:max-w-md p-3 rounded-2xl ${msg.role === 'user' ? 'bg-orange-500 text-white' : 'bg-white text-gray-800'}`}>
+                  {msg.role === 'model' && <GabuIcon className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />}
+                  <div className={`group relative max-w-xs lg:max-w-md p-2 sm:p-3 rounded-xl sm:rounded-2xl ${msg.role === 'user' ? 'bg-orange-500 text-white' : 'bg-white text-gray-800'}`}>
                     {msg.attachment?.type === 'image' && (
                       <img src={`data:${msg.attachment.mimeType};base64,${msg.attachment.data}`} alt="User upload" className="rounded-lg mb-2 max-h-40"/>
                     )}
@@ -252,21 +296,34 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
                           <span className="text-sm font-medium">Audio attached</span>
                       </div>
                     )}
-                    {msg.content && <p className="text-base leading-relaxed break-words">
+                    {msg.content && <p className="text-sm sm:text-base leading-relaxed break-words">
                       {msg === lastModelMessage ? renderTextWithHighlight(msg.content) : msg.content}
                     </p>}
                      {msg.role === 'model' && msg.content && (
-                        <button
-                            onClick={() => handleCopy(msg.content, index)}
-                            className="absolute top-1.5 right-1.5 p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-200"
-                            aria-label={copiedMessageIndex === index ? "Copied" : "Copy message"}
-                        >
-                            {copiedMessageIndex === index ? (
-                                <CheckIcon className="w-5 h-5 text-green-600 animate-check-pop" />
-                            ) : (
-                                <CopyIcon className="w-5 h-5" />
-                            )}
-                        </button>
+                        <div className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200">
+                            <button
+                                onClick={() => handleBookmark(index, msg)}
+                                className="p-1.5 sm:p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-all duration-200 touch-manipulation"
+                                aria-label="Bookmark this explanation"
+                            >
+                                {bookmarkedMessages.has(index) ? (
+                                    <BookmarkFilledIcon className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+                                ) : (
+                                    <BookmarkIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                )}
+                            </button>
+                            <button
+                                onClick={() => handleCopy(msg.content, index)}
+                                className="p-1.5 sm:p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-all duration-200 touch-manipulation"
+                                aria-label={copiedMessageIndex === index ? "Copied" : "Copy message"}
+                            >
+                                {copiedMessageIndex === index ? (
+                                    <CheckCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 animate-check-pop" />
+                                ) : (
+                                    <CopyIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                )}
+                            </button>
+                        </div>
                     )}
                   </div>
                 </div>
@@ -277,33 +334,45 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
             ))}
             {isReplying && (
                 <div className="flex items-end gap-2">
-                    <GabuIcon className="w-8 h-8 text-purple-500 flex-shrink-0 animate-gentle-bounce" />
-                    <div className="max-w-xs p-3 rounded-2xl bg-white">
-                        <p className="text-base leading-relaxed text-gray-500">Gabu is thinking...</p>
+                    <GabuIcon className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0 animate-gentle-bounce" />
+                    <div className="max-w-xs p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white">
+                        <p className="text-sm sm:text-base leading-relaxed text-gray-500">Gabu is thinking...</p>
                     </div>
                 </div>
             )}
           </div>
-          <div className="flex items-center justify-center space-x-4 mt-4">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mt-4">
             {ttsState === 'PLAYING' ? (
-              <button onClick={() => handleTTSAction('pause')} className="flex items-center gap-2 px-6 py-3 bg-amber-500 rounded-full hover:bg-amber-600 transition-all text-white font-bold text-lg transform active:scale-95">
-                <PauseIcon className="w-6 h-6" /> <span>Pause</span>
+              <button onClick={() => handleTTSAction('pause')} className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-amber-500 rounded-full hover:bg-amber-600 transition-all text-white font-bold text-sm sm:text-lg transform active:scale-95 touch-manipulation">
+                <PauseIcon className="w-5 h-5 sm:w-6 sm:h-6" /> <span>Pause</span>
               </button>
             ) : (
-              <button onClick={() => ttsState === 'PAUSED' ? handleTTSAction('resume') : handleTTSAction('play')} disabled={!textToSpeak || isReplying || isGeneratingQuiz} className="flex items-center gap-2 px-6 py-3 bg-teal-500 rounded-full hover:bg-teal-600 transition-all text-white font-bold text-lg transform active:scale-95 disabled:bg-gray-300">
-                <PlayIcon className="w-6 h-6" /> <span>{ttsState === 'PAUSED' ? 'Resume' : 'Play'}</span>
+              <button onClick={() => ttsState === 'PAUSED' ? handleTTSAction('resume') : handleTTSAction('play')} disabled={!textToSpeak || isReplying || isGeneratingQuiz || ttsUnavailable} className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-teal-500 rounded-full hover:bg-teal-600 transition-all text-white font-bold text-sm sm:text-lg transform active:scale-95 disabled:bg-gray-300 touch-manipulation">
+                <PlayIcon className="w-5 h-5 sm:w-6 sm:h-6" /> <span>{ttsState === 'PAUSED' ? 'Resume' : 'Play'}</span>
               </button>
             )}
             {(ttsState === 'PLAYING' || ttsState === 'PAUSED') && (
-              <button onClick={() => handleTTSAction('stop')} className="flex items-center gap-2 px-5 py-3 bg-rose-500 rounded-full hover:bg-rose-600 transition-all text-white font-semibold transform active:scale-95">
-                <StopIcon className="w-6 h-6" /> <span>Stop</span>
+              <button onClick={() => handleTTSAction('stop')} className="flex items-center gap-1 sm:gap-2 px-3 sm:px-5 py-2 sm:py-3 bg-rose-500 rounded-full hover:bg-rose-600 transition-all text-white font-semibold text-sm sm:text-base transform active:scale-95 touch-manipulation">
+                <StopIcon className="w-5 h-5 sm:w-6 sm:h-6" /> <span>Stop</span>
               </button>
             )}
-            <button onClick={handleStartQuiz} disabled={isReplying || isGeneratingQuiz} className="flex items-center gap-2 px-6 py-3 bg-purple-600 rounded-full hover:bg-purple-700 transition-all text-white font-bold text-lg transform active:scale-95 disabled:bg-gray-300">
-                <QuizIcon className="w-6 h-6" /> <span>{isGeneratingQuiz ? 'Creating...' : 'Quiz Me!'}</span>
+            <button onClick={handleStartQuiz} disabled={isReplying || isGeneratingQuiz} className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-purple-600 rounded-full hover:bg-purple-700 transition-all text-white font-bold text-sm sm:text-lg transform active:scale-95 disabled:bg-gray-300 touch-manipulation">
+                <QuizIcon className="w-5 h-5 sm:w-6 sm:h-6" /> <span>{isGeneratingQuiz ? 'Creating...' : 'Quiz Me!'}</span>
+            </button>
+            <button onClick={onHome} className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-orange-500 rounded-full hover:bg-orange-600 transition-all text-white font-bold text-sm sm:text-lg transform active:scale-95 touch-manipulation">
+                <HomeIcon className="w-5 h-5 sm:w-6 sm:h-6" /> <span>Home</span>
             </button>
           </div>
+          {ttsUnavailable && (
+            <p className="text-center text-sm text-gray-500 mt-2">Text-to-speech is not supported in this browser. Try Chrome on desktop or mobile.</p>
+          )}
            {quizError && <p className="text-center text-red-500 mt-2">{quizError}</p>}
+            {micError && (
+                <p className="mt-2 text-center text-sm text-red-500">{micError}</p>
+            )}
+            {uploadError && (
+                <p className="mt-2 text-center text-sm text-red-500">{uploadError}</p>
+            )}
             {attachment && (
                 <div className="mt-3 p-2 bg-gray-200 rounded-lg flex items-center justify-between animate-fade-in">
                     <div className="flex items-center gap-2 text-sm text-gray-700">

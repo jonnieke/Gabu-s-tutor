@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Quiz } from '../types';
-import { GabuIcon, CheckCircleIcon, XCircleIcon } from './Icons';
+import { GabuIcon, CheckCircleIcon, XCircleIcon, HomeIcon } from './Icons';
 
 interface QuizViewProps {
     quiz: Quiz;
     onComplete: (score: number, total: number) => void;
+    onHome: () => void;
 }
 
-const QuizView: React.FC<QuizViewProps> = ({ quiz, onComplete }) => {
+const QuizView: React.FC<QuizViewProps> = ({ quiz, onComplete, onHome }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>(new Array(quiz.questions.length).fill(null));
     const [showResults, setShowResults] = useState(false);
@@ -62,12 +63,21 @@ const QuizView: React.FC<QuizViewProps> = ({ quiz, onComplete }) => {
                         </div>
                     ))}
                 </div>
-                <button
-                    onClick={() => onComplete(score, quiz.questions.length)}
-                    className="mt-8 px-8 py-4 bg-orange-500 text-white font-bold rounded-full shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-500/50 transform hover:scale-105 active:scale-95 transition-all duration-200"
-                >
-                    Back to Chat
-                </button>
+                <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                    <button
+                        onClick={() => onComplete(score, quiz.questions.length)}
+                        className="px-8 py-4 bg-orange-500 text-white font-bold rounded-full shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-500/50 transform hover:scale-105 active:scale-95 transition-all duration-200"
+                    >
+                        Back to Chat
+                    </button>
+                    <button
+                        onClick={onHome}
+                        className="px-8 py-4 bg-purple-500 text-white font-bold rounded-full shadow-lg hover:bg-purple-600 focus:outline-none focus:ring-4 focus:ring-purple-500/50 transform hover:scale-105 active:scale-95 transition-all duration-200"
+                    >
+                        <HomeIcon className="w-5 h-5 inline mr-2" />
+                        Go Home
+                    </button>
+                </div>
             </div>
         )
     }

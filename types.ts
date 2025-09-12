@@ -37,3 +37,36 @@ export interface QuizQuestion {
 export interface Quiz {
   questions: QuizQuestion[];
 }
+
+export interface Bookmark {
+  id: string;
+  title: string;
+  content: string;
+  topic: string;
+  timestamp: Date;
+  type: 'explanation' | 'quiz' | 'illustration';
+  tags: string[];
+}
+
+export interface StudySession {
+  id: string;
+  startTime: Date;
+  endTime?: Date;
+  topics: string[];
+  questionsAsked: number;
+  bookmarksCreated: number;
+  quizScore?: number;
+  totalTime: number; // in minutes
+}
+
+export interface LearningProgress {
+  totalStudyTime: number; // in minutes
+  sessionsToday: number;
+  currentStreak: number;
+  longestStreak: number;
+  topicsStudied: string[];
+  bookmarksCount: number;
+  lastStudyDate: Date;
+  weeklyGoal: number; // minutes per week
+  weeklyProgress: number; // minutes this week
+}

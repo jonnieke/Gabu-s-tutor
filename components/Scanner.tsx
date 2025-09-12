@@ -1,6 +1,6 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { useCamera } from '../hooks/useCamera';
-import { CloseIcon } from './Icons';
+import { CloseIcon, SwitchCameraIcon, FlashIcon } from './Icons';
 
 interface ScannerProps {
   onCapture: (imageDataUrl: string) => void;
@@ -10,7 +10,7 @@ interface ScannerProps {
 const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { stream, error, startCamera, stopCamera } = useCamera();
+  const { stream, error, startCamera, stopCamera, switchCamera, supportsTorch, isTorchOn, toggleTorch, zoomRange, zoom, setZoomLevel, facingMode } = useCamera();
   const [focusIndicator, setFocusIndicator] = useState<{ x: number; y: number; key: number } | null>(null);
   const focusTimeoutRef = useRef<number | null>(null);
 
@@ -70,19 +70,33 @@ const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
     return (
         <div className="p-8 text-center flex flex-col items-center justify-center h-full">
             <h2 className="text-xl font-bold text-red-500 mb-2">Camera Error</h2>
-            <p className="text-gray-600 mb-6">{error}</p>
+            <p className="text-gray-600 mb-6 max-w-md">{error}</p>
+            <div className="text-sm text-gray-500 mb-4 max-w-md">
+                <p>Tips:</p>
+                <ul className="list-disc list-inside text-left">
+                    <li>Allow camera access in your browser settings.</li>
+                    <li>On mobile, ensure your browser has camera permissions enabled in system settings.</li>
+                    <li>Try switching cameras after allowing access.</li>
+                </ul>
+            </div>
             <button
                 onClick={onCancel}
                 className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-full hover:bg-gray-300 transition-colors"
             >
                 Back
             </button>
+            <button
+                onClick={startCamera}
+                className="mt-3 px-6 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition-colors"
+            >
+                Try Again
+            </button>
         </div>
     );
   }
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center bg-black rounded-3xl overflow-hidden">
+    <div className="relative w-full h-full flex flex-col items-center justify-center bg-black rounded-3xl overflow-hidden pt-safe pb-safe">
       <video
         ref={videoRef}
         autoPlay
@@ -91,6 +105,24 @@ const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
         className="w-full h-full object-contain rounded-2xl cursor-pointer transform -scale-x-100"
         onClick={handleVideoTap}
       />
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        <button
+          onClick={switchCamera}
+          className="p-2 rounded-full bg-black/60 text-white hover:bg-black/80 backdrop-blur-sm"
+          aria-label="Switch camera"
+        >
+          <SwitchCameraIcon className="w-6 h-6" />
+        </button>
+        {supportsTorch && (
+          <button
+            onClick={toggleTorch}
+            className={`p-2 rounded-full backdrop-blur-sm ${isTorchOn ? 'bg-yellow-400 text-black' : 'bg-black/60 text-white hover:bg-black/80'}`}
+            aria-label="Toggle flash"
+          >
+            <FlashIcon className="w-6 h-6" />
+          </button>
+        )}
+      </div>
        <div className="absolute top-0 left-0 right-0 p-6 pt-10 text-center bg-gradient-to-b from-black/70 to-transparent z-10 pointer-events-none">
         <h2 className="text-xl font-bold text-white tracking-wide">Scan Text</h2>
         <p className="text-white/80">Position the text within the corners.</p>
@@ -116,7 +148,21 @@ const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
         </div>
       </div>
       <canvas ref={canvasRef} className="hidden" />
-      <div className="absolute bottom-6 flex justify-center items-center w-full z-10">
+      {zoomRange && (
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-28 w-64 z-20">
+          <input
+            type="range"
+            min={zoomRange.min}
+            max={zoomRange.max}
+            step={zoomRange.step}
+            value={zoom ?? zoomRange.min}
+            onChange={(e) => setZoomLevel(parseFloat(e.target.value))}
+            className="w-full accent-yellow-400"
+            aria-label="Zoom"
+          />
+        </div>
+      )}
+      <div className="absolute bottom-6 pb-safe flex justify-center items-center w-full z-10">
         <div className="w-full max-w-sm flex justify-between items-center">
              <button
                 onClick={onCancel}

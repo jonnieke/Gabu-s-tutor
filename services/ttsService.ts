@@ -6,6 +6,8 @@ interface SpeechService {
   isSpeaking: () => boolean;
 }
 
+export const isTTSSupported = (): boolean => typeof window !== 'undefined' && typeof window.speechSynthesis !== 'undefined';
+
 export const getAvailableVoices = (): SpeechSynthesisVoice[] => {
     return window.speechSynthesis?.getVoices() ?? [];
 };
@@ -42,7 +44,7 @@ const selectTutorVoice = () => {
     tutorVoice = selectedVoice;
 };
 
-if (typeof window.speechSynthesis !== 'undefined') {
+if (typeof window !== 'undefined' && typeof window.speechSynthesis !== 'undefined') {
     selectTutorVoice();
     window.speechSynthesis.onvoiceschanged = selectTutorVoice;
 }

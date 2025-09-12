@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Gabu's Tutor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,17 +43,72 @@
       body {
         font-family: 'Nunito', sans-serif;
       }
+      /* Respect reduced motion preferences */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
+          scroll-behavior: auto !important;
+        }
+        .animate-gentle-bounce,
+        .animate-focus-pulse,
+        .animate-check-pop,
+        .animate-pulse-corners {
+          animation: none !important;
+        }
+      }
+      /* Utility for dvh-based full-height to avoid mobile 100vh issues */
+      .min-h-dvh { min-height: 100dvh; }
+      /* Safe area utilities */
+      .pt-safe { padding-top: env(safe-area-inset-top); }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+      .pl-safe { padding-left: env(safe-area-inset-left); }
+      .pr-safe { padding-right: env(safe-area-inset-right); }
+      .px-safe { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+      .py-safe { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+      .safe-inset { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+      
+      /* Mobile-first improvements */
+      .touch-manipulation { touch-action: manipulation; }
+      .safe-area-pb { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
+      
+      /* Better mobile scrolling */
+      .overflow-y-auto {
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+      }
+      
+      /* Mobile-friendly focus states */
+      @media (hover: none) and (pointer: coarse) {
+        .hover\:bg-gray-100:hover { background-color: transparent; }
+        .hover\:bg-gray-200:hover { background-color: transparent; }
+        .hover\:bg-purple-50:hover { background-color: transparent; }
+        .hover\:bg-purple-100:hover { background-color: transparent; }
+        .hover\:bg-purple-700:hover { background-color: rgb(109 40 217); }
+        .hover\:bg-orange-600:hover { background-color: rgb(234 88 12); }
+        .hover\:bg-teal-600:hover { background-color: rgb(13 148 136); }
+        .hover\:bg-blue-600:hover { background-color: rgb(37 99 235); }
+        .hover\:bg-indigo-600:hover { background-color: rgb(79 70 229); }
+        .hover\:bg-amber-600:hover { background-color: rgb(217 119 6); }
+        .hover\:bg-rose-600:hover { background-color: rgb(225 29 72); }
+        .hover\:text-gray-600:hover { color: rgb(75 85 99); }
+        .hover\:text-gray-700:hover { color: rgb(55 65 81); }
+        .hover\:text-gray-800:hover { color: rgb(31 41 55); }
+        .hover\:text-purple-500:hover { color: rgb(168 85 247); }
+        .hover\:text-purple-700:hover { color: rgb(126 34 206); }
+        .hover\:shadow-md:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+      }
+      
+      /* Better mobile button sizing */
+      @media (max-width: 640px) {
+        button {
+          min-height: 44px;
+          min-width: 44px;
+        }
+      }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.18.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
-  }
-}
-</script>
+  
 </head>
   <body class="bg-gray-100 text-gray-800">
     <div id="root"></div>
