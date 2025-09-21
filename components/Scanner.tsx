@@ -39,13 +39,19 @@ const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
       canvas.height = video.videoHeight;
       const context = canvas.getContext('2d');
       if (context) {
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // If using front camera (user), we need to flip the captured image back
+        if (facingMode === 'user') {
+          context.scale(-1, 1);
+          context.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+        } else {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        }
         const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
         onCapture(imageDataUrl);
         stopCamera();
       }
     }
-  }, [onCapture, stopCamera]);
+  }, [onCapture, stopCamera, facingMode]);
 
   const handleVideoTap = useCallback((event: React.MouseEvent<HTMLVideoElement>) => {
     if (!videoRef.current) return;
@@ -101,7 +107,7 @@ const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
         autoPlay
         playsInline
         muted
-        className="w-full h-full object-contain rounded-2xl cursor-pointer transform -scale-x-100"
+        className={`w-full h-full object-contain rounded-2xl cursor-pointer transform ${facingMode === 'user' ? '-scale-x-100' : ''}`}
         onClick={handleVideoTap}
       />
       <div className="absolute top-4 right-4 z-20 flex items-center gap-2">

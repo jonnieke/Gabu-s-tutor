@@ -47,16 +47,23 @@ const App: React.FC = () => {
   const audioInputRef = useRef<HTMLInputElement>(null);
   
   useEffect(() => {
-    const savedSettings = localStorage.getItem('gabu-settings');
-    if (savedSettings) {
-      setUserSettings(JSON.parse(savedSettings));
+    try {
+      const savedSettings = localStorage.getItem('gabu-settings');
+      if (savedSettings) {
+        setUserSettings(JSON.parse(savedSettings));
+      }
+    } catch (error) {
+      console.warn('Failed to load saved settings:', error);
     }
-    const savedTopics = localStorage.getItem('gabu-recent-topics');
-    if (savedTopics) {
-      try {
+    
+    try {
+      const savedTopics = localStorage.getItem('gabu-recent-topics');
+      if (savedTopics) {
         const parsed: string[] = JSON.parse(savedTopics);
         setRecentTopics(parsed.slice(0, 8));
-      } catch {}
+      }
+    } catch (error) {
+      console.warn('Failed to load recent topics:', error);
     }
   }, []);
 

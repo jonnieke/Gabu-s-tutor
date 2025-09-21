@@ -55,45 +55,80 @@ const ttsService: SpeechService = {
       console.warn('Text-to-speech is not supported in this browser.');
       return;
     }
+    
+    console.log('TTS: Starting to speak text:', text.substring(0, 50) + '...');
     ttsService.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
     
-    let finalVoice: SpeechSynthesisVoice | null = null;
-    if (voiceURI) {
-        finalVoice = getAvailableVoices().find(v => v.voiceURI === voiceURI);
-    }
+    // Wait for voices to load if they're not available yet
+    const speakWithVoices = () => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      let finalVoice: SpeechSynthesisVoice | null = null;
+      if (voiceURI) {
+          finalVoice = getAvailableVoices().find(v => v.voiceURI === voiceURI);
+      }
 
-    if (finalVoice) {
-      utterance.voice = finalVoice;
-      utterance.lang = finalVoice.lang;
-    } else if (tutorVoice) {
-      utterance.voice = tutorVoice;
-      utterance.lang = tutorVoice.lang;
-    } else {
-      utterance.lang = 'en-US';
-    }
+      if (finalVoice) {
+        utterance.voice = finalVoice;
+        utterance.lang = finalVoice.lang;
+        console.log('TTS: Using user-selected voice:', finalVoice.name);
+      } else if (tutorVoice) {
+        utterance.voice = tutorVoice;
+        utterance.lang = tutorVoice.lang;
+        console.log('TTS: Using tutor voice:', tutorVoice.name);
+      } else {
+        utterance.lang = 'en-US';
+        console.log('TTS: Using default language');
+      }
 
-    utterance.rate = 0.95;
-    utterance.pitch = 1.0;
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
 
-    utterance.onend = () => {
-      onEnd();
-    };
-    
-    utterance.onerror = (event) => {
-        console.error('SpeechSynthesisUtterance.onerror', event);
+      utterance.onstart = () => {
+        console.log('TTS: Speech started');
+      };
+
+      utterance.onend = () => {
+        console.log('TTS: Speech ended');
         onEnd();
+      };
+      
+      utterance.onerror = (event) => {
+          console.error('TTS: Speech error:', event.error, event);
+          onEnd();
+      };
+
+      if (onBoundary) {
+        utterance.onboundary = (event) => {
+          if (event.name === 'word') {
+            onBoundary(event.charIndex);
+          }
+        };
+      }
+
+      try {
+        window.speechSynthesis.speak(utterance);
+        console.log('TTS: Utterance queued successfully');
+      } catch (error) {
+        console.error('TTS: Failed to speak:', error);
+        onEnd();
+      }
     };
 
-    if (onBoundary) {
-      utterance.onboundary = (event) => {
-        if (event.name === 'word') {
-          onBoundary(event.charIndex);
+    // If voices are not loaded yet, wait for them
+    if (getAvailableVoices().length === 0) {
+      console.log('TTS: Waiting for voices to load...');
+      const waitForVoices = () => {
+        if (getAvailableVoices().length > 0) {
+          speakWithVoices();
+        } else {
+          setTimeout(waitForVoices, 100);
         }
       };
+      waitForVoices();
+    } else {
+      speakWithVoices();
     }
-
-    window.speechSynthesis.speak(utterance);
   },
   pause: () => {
     if (window.speechSynthesis && window.speechSynthesis.speaking) {
