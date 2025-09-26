@@ -8,6 +8,12 @@ const STATIC_CACHE_URLS = [
   '/sitemap.xml'
 ];
 
+// Skip service worker in development mode
+if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+  console.log('Service Worker: Skipping in development mode');
+  self.skipWaiting();
+}
+
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
   console.log('Service Worker: Installing...');
@@ -51,6 +57,11 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache when offline
 self.addEventListener('fetch', (event) => {
+  // Skip in development mode
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    return;
+  }
+
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
     return;
@@ -59,7 +70,9 @@ self.addEventListener('fetch', (event) => {
   // Skip API calls and external resources
   if (event.request.url.includes('/api/') || 
       event.request.url.includes('googleapis.com') ||
-      event.request.url.includes('google.com')) {
+      event.request.url.includes('google.com') ||
+      event.request.url.includes('@vite') ||
+      event.request.url.includes('vite/client')) {
     return;
   }
 
