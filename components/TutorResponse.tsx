@@ -301,9 +301,9 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
   }
 
   return (
-    <div className="p-3 sm:p-4 md:p-8 w-full h-full flex flex-col overflow-hidden">
+    <div className="p-3 sm:p-4 md:p-8 lg:p-12 w-full h-full flex flex-col overflow-hidden">
        <input type="file" accept="image/*,audio/*" ref={fileInputRef} onChange={handleFileSelected} className="hidden" />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-start flex-grow min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-start flex-grow min-h-0">
         <div className="flex flex-col items-center h-full">
             <div className="w-full max-w-sm flex justify-between items-center mb-2">
                 <p className="text-sm sm:text-base font-bold text-gray-500">What you're studying</p>

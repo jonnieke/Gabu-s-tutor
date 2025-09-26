@@ -395,66 +395,69 @@ const App: React.FC = () => {
   const headerTextColor = appState === AppState.SCANNING ? 'text-white/90' : 'text-gray-800';
 
   return (
-    <div className="min-h-dvh w-full bg-gray-100">
-      <main className="w-full h-full">
-        <div className="bg-white min-h-dvh flex flex-col relative">
-            <header className="relative top-0 left-0 right-0 z-20 flex items-center justify-between p-4 sm:p-6 pb-2 sm:pb-4">
-                <h1 className={`text-xl sm:text-2xl font-extrabold ${headerTextColor} transition-colors`}>Gabu's Tutor</h1>
-                <div className="flex items-center gap-2 sm:gap-3">
+    <div className="min-h-screen w-full bg-gray-50">
+      <main className="w-full min-h-screen">
+        <div className="bg-white min-h-screen flex flex-col relative w-full">
+            <header className="w-full relative top-0 left-0 right-0 z-20 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+                <div className="flex items-center">
+                  <GabuIcon className="w-8 h-8 sm:w-10 sm:h-10 text-purple-600 mr-3" />
+                  <h1 className={`text-xl sm:text-2xl lg:text-3xl font-extrabold ${headerTextColor} transition-colors`}>Gabu's Tutor</h1>
+                </div>
+                <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                   <OfflineIndicator />
                   {appState === AppState.IDLE && (
                     <>
                       <button
                         onClick={() => setIsRemindersOpen(true)}
-                        className="p-2 sm:p-3 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
+                        className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
                         aria-label="Study Reminders"
                       >
-                        <BellIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
+                        <BellIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
                       </button>
                       <button
                         onClick={() => setIsCollaborativeOpen(true)}
-                        className="p-2 sm:p-3 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
+                        className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
                         aria-label="Collaborative Dashboard"
                       >
-                        <UsersIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
+                        <UsersIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
                       </button>
                       <button
                         onClick={() => setIsAdaptiveLearningOpen(true)}
-                        className="p-2 sm:p-3 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
+                        className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
                         aria-label="Adaptive Learning"
                       >
-                        <BrainIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
+                        <BrainIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
                       </button>
                       <button
                         onClick={() => setIsAchievementsOpen(true)}
-                        className="p-2 sm:p-3 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
+                        className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
                         aria-label="Achievements"
                       >
-                        <TrophyIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
+                        <TrophyIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
                       </button>
                     </>
                   )}
                 </div>
             </header>
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-hidden w-full">
               {renderContent()}
             </div>
             {appState === AppState.IDLE && (
-              <nav className="sticky bottom-0 inset-x-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 px-4 sm:px-6 py-2 sm:py-3 flex items-center justify-between safe-area-pb z-30">
-                <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center text-xs sm:text-sm py-1 px-2 rounded-lg touch-manipulation ${activeTab==='home'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600'}`}>
-                  <HomeIcon className="w-5 h-5 sm:w-6 sm:h-6 mb-1"/>
+              <nav className="w-full sticky bottom-0 inset-x-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between safe-area-pb z-30">
+                <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='home'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
+                  <HomeIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
                   <span className="font-medium">Home</span>
                 </button>
-                <button onClick={() => { setActiveTab('scan'); setAppState(AppState.SCANNING); }} className={`flex flex-col items-center text-xs sm:text-sm py-1 px-2 rounded-lg touch-manipulation ${activeTab==='scan'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600'}`}>
-                  <CameraIcon className="w-5 h-5 sm:w-6 sm:h-6 mb-1"/>
+                <button onClick={() => { setActiveTab('scan'); setAppState(AppState.SCANNING); }} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='scan'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
+                  <CameraIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
                   <span className="font-medium">Scan</span>
                 </button>
-                <button onClick={() => setActiveTab('materials')} className={`flex flex-col items-center text-xs sm:text-sm py-1 px-2 rounded-lg touch-manipulation ${activeTab==='materials'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600'}`}>
-                  <BookIcon className="w-5 h-5 sm:w-6 sm:h-6 mb-1"/>
+                <button onClick={() => setActiveTab('materials')} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='materials'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
+                  <BookIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
                   <span className="font-medium">Materials</span>
                 </button>
-                <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center text-xs sm:text-sm py-1 px-2 rounded-lg touch-manipulation ${activeTab==='profile'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600'}`}>
-                  <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 mb-1"/>
+                <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='profile'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
+                  <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
                   <span className="font-medium">Profile</span>
                 </button>
               </nav>
