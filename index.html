@@ -173,6 +173,22 @@
       .animate-pulse-corners {
         animation: pulse-corners 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
+      @keyframes bounce-in {
+        0% { transform: scale(0.3); opacity: 0; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+        70% { transform: scale(0.9); opacity: 0.9; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .animate-bounce-in {
+        animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+      @keyframes fade-in {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.3s ease-out;
+      }
       body {
         font-family: 'Nunito', sans-serif;
       }
@@ -187,7 +203,9 @@
         .animate-gentle-bounce,
         .animate-focus-pulse,
         .animate-check-pop,
-        .animate-pulse-corners {
+        .animate-pulse-corners,
+        .animate-bounce-in,
+        .animate-fade-in {
           animation: none !important;
         }
       }

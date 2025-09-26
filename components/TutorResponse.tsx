@@ -6,6 +6,7 @@ import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { generateQuiz } from '../services/geminiService';
 import { saveBookmark, getBookmarks } from '../services/progressService';
 import QuizView from './QuizView';
+import QuizPromptModal from './QuizPromptModal';
 
 interface TutorResponseProps {
   image: string | null;
@@ -44,6 +45,9 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
   const [ttsUnavailable, setTtsUnavailable] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [bookmarkedMessages, setBookmarkedMessages] = useState<Set<number>>(new Set());
+  const [showQuizPrompt, setShowQuizPrompt] = useState(false);
+  const [hasSeenQuizPrompt, setHasSeenQuizPrompt] = useState(false);
+  const [quizPromptDismissed, setQuizPromptDismissed] = useState(false);
   
   const { isRecording, audioData, startRecording, stopRecording, resetRecording, error: micError } = useAudioRecorder();
   
@@ -52,6 +56,21 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
   
   const lastModelMessage = chatHistory.slice().reverse().find(m => m.role === 'model');
   const textToSpeak = lastModelMessage?.content || '';
+
+  // Extract topic from the conversation for quiz prompt
+  const getTopicFromConversation = () => {
+    if (image) return 'the scanned content';
+    const firstUserMessage = chatHistory.find(m => m.role === 'user');
+    if (firstUserMessage?.content) {
+      const question = firstUserMessage.content.toLowerCase();
+      if (question.includes('math') || question.includes('calculate') || question.includes('solve')) return 'math';
+      if (question.includes('science') || question.includes('experiment')) return 'science';
+      if (question.includes('history') || question.includes('past')) return 'history';
+      if (question.includes('english') || question.includes('grammar') || question.includes('writing')) return 'English';
+      if (question.includes('what') || question.includes('how') || question.includes('why')) return 'this topic';
+    }
+    return 'this topic';
+  };
 
   const handleCopy = (text: string, index: number) => {
     if (!navigator.clipboard) {
@@ -117,6 +136,18 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
   useEffect(() => {
     handleTTSAction('stop');
   }, [textToSpeak, handleTTSAction]);
+
+  // Show quiz prompt after a delay when user has an answer
+  useEffect(() => {
+    if (lastModelMessage && !hasSeenQuizPrompt && !quizPromptDismissed && !quiz) {
+      const timer = setTimeout(() => {
+        setShowQuizPrompt(true);
+        setHasSeenQuizPrompt(true);
+      }, 3000); // Show after 3 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [lastModelMessage, hasSeenQuizPrompt, quizPromptDismissed, quiz]);
   
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -236,6 +267,16 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
     const message = `Great job on the quiz! You scored ${score}/${total}. Let me know if you want to review anything!`;
     onSystemMessage(message);
     setQuiz(null);
+  }
+
+  const handleQuizPromptDismiss = () => {
+    setQuizPromptDismissed(true);
+    setShowQuizPrompt(false);
+  }
+
+  const handleQuizPromptStart = () => {
+    setShowQuizPrompt(false);
+    handleStartQuiz();
   }
 
   const handleBookmark = (messageIndex: number, message: ChatMessage) => {
@@ -414,6 +455,15 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
           Start a New Topic
         </button>
       </div>
+
+      {/* Quiz Prompt Modal */}
+      <QuizPromptModal
+        isOpen={showQuizPrompt}
+        onClose={() => setShowQuizPrompt(false)}
+        onStartQuiz={handleQuizPromptStart}
+        onDismiss={handleQuizPromptDismiss}
+        topic={getTopicFromConversation()}
+      />
     </div>
   );
 };
