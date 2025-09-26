@@ -68,6 +68,15 @@
     <link rel="dns-prefetch" href="//cdn.tailwindcss.com" />
     <!-- Tailwind CSS CDN for development and production -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Ensure Tailwind is loaded
+      if (typeof tailwind === 'undefined') {
+        console.log('Loading Tailwind CSS...');
+        const script = document.createElement('script');
+        script.src = 'https://cdn.tailwindcss.com';
+        document.head.appendChild(script);
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
@@ -145,6 +154,20 @@
     </script>
     
     <style>
+      /* Basic fallback styles */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        background-color: #f3f4f6;
+        color: #1f2937;
+      }
+      
+      #root {
+        min-height: 100vh;
+        width: 100%;
+      }
+      
       @keyframes focus-pulse {
         0% { transform: scale(0.9); opacity: 1; }
         70% { transform: scale(1.2); opacity: 0.7; }
@@ -271,28 +294,11 @@
     <script>
       if ('serviceWorker' in navigator) {
         if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-          // Clear all caches and unregister service workers in development
-          console.log('🧹 Development mode: Clearing service worker and caches...');
-          
-          // Clear all caches
-          if ('caches' in window) {
-            caches.keys().then(function(cacheNames) {
-              return Promise.all(
-                cacheNames.map(function(cacheName) {
-                  console.log('🗑️ Deleting cache:', cacheName);
-                  return caches.delete(cacheName);
-                })
-              );
-            });
-          }
-          
-          // Unregister all service workers
+          // Simply unregister service workers in development
           navigator.serviceWorker.getRegistrations().then(function(registrations) {
             for(let registration of registrations) {
-              console.log('🚫 Unregistering service worker:', registration.scope);
               registration.unregister();
             }
-            console.log('✅ Service worker cleared for development');
           });
         } else {
           // Only register in production
