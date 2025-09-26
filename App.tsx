@@ -14,7 +14,10 @@ import OfflineIndicator from './components/OfflineIndicator';
 import CollaborativeDashboard from './components/CollaborativeDashboard';
 import AdaptiveLearningDashboard from './components/AdaptiveLearningDashboard';
 import IllustrateView from './components/IllustrateView';
-import { HomeIcon, CameraIcon, BookIcon, UserIcon, BellIcon, UsersIcon, BrainIcon } from './components/Icons';
+import ErrorBoundary from './components/ErrorBoundary';
+import AchievementsPanel from './components/AchievementsPanel';
+import Celebration from './components/Celebration';
+import { HomeIcon, CameraIcon, BookIcon, UserIcon, BellIcon, UsersIcon, BrainIcon, TrophyIcon } from './components/Icons';
 import { startStudySession, endStudySession, addTopicStudied, updateStreak } from './services/progressService';
 import { offlineService } from './services/offlineService';
 import { reminderService } from './services/reminderService';
@@ -42,6 +45,18 @@ const App: React.FC = () => {
   const [isCollaborativeOpen, setIsCollaborativeOpen] = useState(false);
   const [isAdaptiveLearningOpen, setIsAdaptiveLearningOpen] = useState(false);
   const [isIllustrateOpen, setIsIllustrateOpen] = useState(false);
+  const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
+  const [celebration, setCelebration] = useState<{
+    type: 'achievement' | 'streak' | 'quiz' | 'learning';
+    title: string;
+    message: string;
+    isVisible: boolean;
+  }>({
+    type: 'achievement',
+    title: '',
+    message: '',
+    isVisible: false
+  });
 
   const imageInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
@@ -410,6 +425,13 @@ const App: React.FC = () => {
                       >
                         <BrainIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
                       </button>
+                      <button
+                        onClick={() => setIsAchievementsOpen(true)}
+                        className="p-2 sm:p-3 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
+                        aria-label="Achievements"
+                      >
+                        <TrophyIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
+                      </button>
                     </>
                   )}
                 </div>
@@ -474,6 +496,22 @@ const App: React.FC = () => {
             userSettings={userSettings}
           />
         )}
+        
+        {/* Achievements Panel */}
+        <AchievementsPanel
+          isOpen={isAchievementsOpen}
+          onClose={() => setIsAchievementsOpen(false)}
+          userSettings={userSettings}
+        />
+        
+        {/* Celebration Modal */}
+        <Celebration
+          type={celebration.type}
+          title={celebration.title}
+          message={celebration.message}
+          isVisible={celebration.isVisible}
+          onComplete={() => setCelebration(prev => ({ ...prev, isVisible: false }))}
+        />
     </div>
   );
 };
