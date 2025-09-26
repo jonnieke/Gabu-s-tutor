@@ -33,11 +33,6 @@
       "sizes": "16x16",
       "type": "image/png"
     },
-    {
-      "src": "/vite.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
-    }
   ],
   "screenshots": [
     {

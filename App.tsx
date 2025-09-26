@@ -17,7 +17,7 @@ import IllustrateView from './components/IllustrateView';
 import ErrorBoundary from './components/ErrorBoundary';
 import AchievementsPanel from './components/AchievementsPanel';
 import Celebration from './components/Celebration';
-import { HomeIcon, CameraIcon, BookIcon, UserIcon, BellIcon, UsersIcon, BrainIcon, TrophyIcon } from './components/Icons';
+import { HomeIcon, CameraIcon, BookIcon, UserIcon, BellIcon, UsersIcon, BrainIcon, TrophyIcon, GabuIcon } from './components/Icons';
 import { startStudySession, endStudySession, addTopicStudied, updateStreak } from './services/progressService';
 import { offlineService } from './services/offlineService';
 import { reminderService } from './services/reminderService';

@@ -66,15 +66,17 @@
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//fonts.gstatic.com" />
     <link rel="dns-prefetch" href="//cdn.tailwindcss.com" />
-    <!-- Tailwind CSS CDN for development and production -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS CDN -->
     <script>
-      // Ensure Tailwind is loaded
-      if (typeof tailwind === 'undefined') {
-        console.log('Loading Tailwind CSS...');
+      // Load Tailwind CSS
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        // Development mode - load from CDN
         const script = document.createElement('script');
         script.src = 'https://cdn.tailwindcss.com';
         document.head.appendChild(script);
+      } else {
+        // Production mode - Tailwind will be built into the CSS
+        console.log('Production mode: Using built Tailwind CSS');
       }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
