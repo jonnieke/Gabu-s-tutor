@@ -46,6 +46,12 @@ export const useCamera = () => {
         return;
       }
       setError(null);
+      
+      // Check if mediaDevices is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera not supported on this device');
+      }
+      
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode,
@@ -58,12 +64,30 @@ export const useCamera = () => {
       setStream(mediaStream);
       applyTrackCapabilities(mediaStream);
     } catch (err) {
-      console.error("Camera access error:", err);
+      console.warn("Camera access error:", err);
       if (err instanceof Error) {
         if ((err as any).name === 'NotAllowedError' || (err as any).name === 'PermissionDeniedError') {
           setError('Camera permission was denied. Please click the address bar lock icon and allow camera access, then try again.');
         } else if ((err as any).name === 'NotFoundError' || (err as any).name === 'DevicesNotFoundError') {
           setError('No camera found on this device.');
+        } else if ((err as any).name === 'NotReadableError') {
+          setError('Camera is already in use by another application.');
+        } else if ((err as any).name === 'OverconstrainedError') {
+          setError('Camera constraints cannot be satisfied. Trying with default settings...');
+          // Try again with basic constraints
+          try {
+            const basicStream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode },
+              audio: false,
+            });
+            streamRef.current = basicStream;
+            setStream(basicStream);
+            applyTrackCapabilities(basicStream);
+            return;
+          } catch (basicErr) {
+            console.warn("Basic camera access also failed:", basicErr);
+            setError('Could not access the camera with any settings.');
+          }
         } else {
           setError('Could not access the camera.');
         }
@@ -105,7 +129,8 @@ export const useCamera = () => {
       await (track as any).applyConstraints({ advanced: [{ torch: !isTorchOn }] });
       setIsTorchOn((prev) => !prev);
     } catch (e) {
-      console.warn('Torch toggle not supported on this device.', e);
+      console.warn('Torch toggle not supported on this device:', e);
+      // Don't show error to user for torch - it's optional
     }
   }, [supportsTorch, isTorchOn]);
 
@@ -117,7 +142,8 @@ export const useCamera = () => {
       await (track as any).applyConstraints({ advanced: [{ zoom: clamped }] });
       setZoom(clamped);
     } catch (e) {
-      console.warn('Zoom not supported on this device.', e);
+      console.warn('Zoom not supported on this device:', e);
+      // Don't show error to user for zoom - it's optional
     }
   }, [zoomRange]);
 
