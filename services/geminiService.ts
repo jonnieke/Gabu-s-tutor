@@ -8,7 +8,7 @@ const getApiKey = (): string | undefined => {
   return key;
 };
 
-const getAI = (): GoogleGenAI => {
+export const getAI = (): GoogleGenAI => {
   if (aiClient) return aiClient;
   const key = getApiKey();
   if (!key) {

@@ -3,6 +3,7 @@ import { generateEducationalDiagram, diagramTemplates, getSuggestedTopics } from
 import { UserSettings } from '../types';
 import { CloseIcon, DownloadIcon, CopyIcon, LightBulbIcon, SendIcon, HomeIcon } from './Icons';
 import Loader from './Loader';
+import { getAI } from '../services/geminiService';
 
 interface IllustrateViewProps {
   onClose: () => void;
@@ -16,25 +17,120 @@ const IllustrateView: React.FC<IllustrateViewProps> = ({ onClose, onHome, userSe
   const [isGenerating, setIsGenerating] = useState(false);
   const [diagramResult, setDiagramResult] = useState<any>(null);
   const [error, setError] = useState('');
+  const [quizData, setQuizData] = useState<Array<{question: string, answer: string, explanation: string}> | null>(null);
+  const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
 
   const suggestedTopics = getSuggestedTopics();
 
-  // Generate quiz questions based on the label and topic
-  const generateQuizQuestion = (label: string, topic: string, questionNumber: number): string => {
-    const cleanLabel = label.replace(/\*\*/g, '').replace(/\*/g, '').trim();
+  // Generate AI-powered quiz questions and answers
+  const generateEducationalQuiz = async (labels: string[], topic: string, description: string, userSettings: UserSettings): Promise<Array<{question: string, answer: string, explanation: string}>> => {
+    try {
+      const result = await getAI().models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: {
+          parts: [{
+            text: `Create an engaging educational quiz based on this diagram information:
+
+TOPIC: ${topic}
+DESCRIPTION: ${description}
+LABELS/COMPONENTS: ${labels.join(', ')}
+
+Create 5 educational quiz questions that are:
+1. SPECIFIC to the diagram content and components
+2. EDUCATIONAL and help students learn
+3. APPROPRIATE for ${userSettings.grade || 'elementary'} grade level
+4. ENGAGING and not too easy or too hard
+
+For each question, provide:
+- A clear, specific question about the diagram
+- A detailed, educational answer
+- A brief explanation of why this is important
+
+Format your response EXACTLY like this:
+
+QUESTION 1:
+[Your specific question here]
+
+ANSWER 1:
+[Detailed educational answer here]
+
+EXPLANATION 1:
+[Why this is important to know]
+
+QUESTION 2:
+[Your specific question here]
+
+ANSWER 2:
+[Detailed educational answer here]
+
+EXPLANATION 2:
+[Why this is important to know]
+
+[Continue for all 5 questions]
+
+Make sure each question is directly related to the diagram components and helps students understand the topic better.`
+          }]
+        },
+        config: {
+          systemInstruction: "You are an expert educational quiz creator. Create engaging, specific questions that help students learn from visual diagrams. Focus on understanding, not just memorization."
+        }
+      });
+
+      const text = typeof (result as any).text === 'function' ? (result as any).text() : (result as any).text;
+      const responseText = typeof text === 'string' ? text : String(text ?? '');
+      
+      return parseQuizResponse(responseText);
+    } catch (error) {
+      console.error('Error generating educational quiz:', error);
+      // Fallback to basic questions
+      return generateFallbackQuiz(labels, topic);
+    }
+  };
+
+  // Parse the AI-generated quiz response
+  const parseQuizResponse = (responseText: string): Array<{question: string, answer: string, explanation: string}> => {
+    const quizItems: Array<{question: string, answer: string, explanation: string}> = [];
     
-    // Create different types of questions based on the content
-    const questionTypes = [
-      `What is the function of the ${cleanLabel.toLowerCase()} in this ${topic}?`,
-      `Can you identify the ${cleanLabel.toLowerCase()} in the diagram?`,
-      `What role does the ${cleanLabel.toLowerCase()} play in this ${topic}?`,
-      `Where would you find the ${cleanLabel.toLowerCase()} in this ${topic}?`,
-      `How does the ${cleanLabel.toLowerCase()} contribute to the ${topic}?`
-    ];
+    // Split by QUESTION pattern
+    const questionBlocks = responseText.split(/QUESTION \d+:/i);
     
-    // Use question number to cycle through question types
-    const questionIndex = (questionNumber - 1) % questionTypes.length;
-    return questionTypes[questionIndex];
+    for (let i = 1; i < questionBlocks.length; i++) {
+      const block = questionBlocks[i];
+      
+      // Extract question
+      const questionMatch = block.match(/^(.*?)(?=ANSWER \d+:|$)/is);
+      const question = questionMatch ? questionMatch[1].trim() : '';
+      
+      // Extract answer
+      const answerMatch = block.match(/ANSWER \d+:(.*?)(?=EXPLANATION \d+:|$)/is);
+      const answer = answerMatch ? answerMatch[1].trim() : '';
+      
+      // Extract explanation
+      const explanationMatch = block.match(/EXPLANATION \d+:(.*?)$/is);
+      const explanation = explanationMatch ? explanationMatch[1].trim() : '';
+      
+      if (question && answer) {
+        quizItems.push({
+          question: question.replace(/^Q\d+[:\-\s]*/i, '').trim(),
+          answer: answer.replace(/^A\d+[:\-\s]*/i, '').trim(),
+          explanation: explanation.replace(/^E\d+[:\-\s]*/i, '').trim()
+        });
+      }
+    }
+    
+    return quizItems.length > 0 ? quizItems : generateFallbackQuiz([], 'general topic');
+  };
+
+  // Fallback quiz generation
+  const generateFallbackQuiz = (labels: string[], topic: string): Array<{question: string, answer: string, explanation: string}> => {
+    return labels.slice(0, 5).map((label, index) => {
+      const cleanLabel = label.replace(/\*\*/g, '').replace(/\*/g, '').trim();
+      return {
+        question: `What is the role of the ${cleanLabel.toLowerCase()} in this ${topic}?`,
+        answer: `The ${cleanLabel.toLowerCase()} is an important component that helps the ${topic} function properly.`,
+        explanation: `Understanding the ${cleanLabel.toLowerCase()} helps you learn how different parts work together in the ${topic}.`
+      };
+    });
   };
 
   const handleGenerateDiagram = useCallback(async () => {
@@ -46,6 +142,7 @@ const IllustrateView: React.FC<IllustrateViewProps> = ({ onClose, onHome, userSe
     setIsGenerating(true);
     setError('');
     setDiagramResult(null);
+    setQuizData(null);
 
     try {
       const requestTopic = selectedTemplate || topic;
@@ -59,6 +156,26 @@ const IllustrateView: React.FC<IllustrateViewProps> = ({ onClose, onHome, userSe
       });
 
       setDiagramResult(result);
+
+      // Generate educational quiz after diagram is created
+      if (result.labels && result.labels.length > 0) {
+        setIsGeneratingQuiz(true);
+        try {
+          const quiz = await generateEducationalQuiz(
+            result.labels,
+            requestTopic,
+            result.description,
+            userSettings
+          );
+          setQuizData(quiz);
+        } catch (quizError) {
+          console.error('Quiz generation failed:', quizError);
+          // Don't show error for quiz generation failure, just use fallback
+          setQuizData(generateFallbackQuiz(result.labels, requestTopic));
+        } finally {
+          setIsGeneratingQuiz(false);
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate diagram');
     } finally {
@@ -202,31 +319,64 @@ const IllustrateView: React.FC<IllustrateViewProps> = ({ onClose, onHome, userSe
               </div>
 
               {/* Quiz Section */}
-              {diagramResult.labels && diagramResult.labels.length > 0 && (
+              {(quizData || isGeneratingQuiz) && (
                 <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <h3 className="text-xl font-bold text-gray-800 mb-4">📚 Quiz: Test Your Knowledge</h3>
-                  <p className="text-gray-600 text-sm mb-4">Answer these questions about the diagram to check your understanding:</p>
-                  <div className="space-y-4">
-                    {diagramResult.labels.map((label: string, index: number) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                          <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
-                            {index + 1}
-                          </span>
-                          <div className="flex-1">
-                            <p className="text-gray-800 font-medium mb-2">
-                              {generateQuizQuestion(label, selectedTemplate || topic, index + 1)}
-                            </p>
-                            <div className="bg-gray-50 rounded-lg p-3">
-                              <p className="text-gray-600 text-sm">
-                                <span className="font-medium">Answer:</span> {label.replace(/\*\*/g, '').replace(/\*/g, '')}
+                  <p className="text-gray-600 text-sm mb-4">
+                    {isGeneratingQuiz ? 'Generating educational quiz questions...' : 'Answer these questions about the diagram to check your understanding:'}
+                  </p>
+                  
+                  {isGeneratingQuiz ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader />
+                      <span className="ml-3 text-gray-600">Creating personalized quiz questions...</span>
+                    </div>
+                  ) : quizData ? (
+                    <div className="space-y-4">
+                      {quizData.map((quizItem, index) => (
+                        <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-start gap-3">
+                            <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                              {index + 1}
+                            </span>
+                            <div className="flex-1">
+                              <p className="text-gray-800 font-medium mb-3 text-base">
+                                {quizItem.question}
                               </p>
+                              
+                              {/* Answer Section - Initially Hidden */}
+                              <details className="group">
+                                <summary className="cursor-pointer text-green-600 hover:text-green-700 font-medium text-sm mb-2 flex items-center gap-2">
+                                  <span>Show Answer</span>
+                                  <svg className="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </summary>
+                                
+                                <div className="bg-green-50 rounded-lg p-4 mt-2 border border-green-200">
+                                  <div className="mb-3">
+                                    <p className="text-green-800 font-medium text-sm mb-2">Answer:</p>
+                                    <p className="text-green-700 text-sm leading-relaxed">
+                                      {quizItem.answer}
+                                    </p>
+                                  </div>
+                                  
+                                  {quizItem.explanation && (
+                                    <div className="border-t border-green-200 pt-3">
+                                      <p className="text-green-800 font-medium text-sm mb-2">Why this matters:</p>
+                                      <p className="text-green-600 text-sm leading-relaxed">
+                                        {quizItem.explanation}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </details>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               )}
 
@@ -245,6 +395,7 @@ const IllustrateView: React.FC<IllustrateViewProps> = ({ onClose, onHome, userSe
                     setTopic('');
                     setSelectedTemplate('');
                     setError('');
+                    setQuizData(null);
                   }}
                   className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                 >
