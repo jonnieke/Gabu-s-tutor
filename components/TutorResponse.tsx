@@ -48,6 +48,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
   const [showQuizPrompt, setShowQuizPrompt] = useState(false);
   const [hasSeenQuizPrompt, setHasSeenQuizPrompt] = useState(false);
   const [quizPromptDismissed, setQuizPromptDismissed] = useState(false);
+  const [navigationAction, setNavigationAction] = useState<(() => void) | null>(null);
   
   const { isRecording, audioData, startRecording, stopRecording, resetRecording, error: micError } = useAudioRecorder();
   
@@ -137,16 +138,33 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
     handleTTSAction('stop');
   }, [textToSpeak, handleTTSAction]);
 
-  // Show quiz prompt after a delay when user has an answer
+  // Navigation detection for quiz prompt
   useEffect(() => {
-    if (lastModelMessage && !hasSeenQuizPrompt && !quizPromptDismissed && !quiz) {
-      const timer = setTimeout(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (lastModelMessage && !hasSeenQuizPrompt && !quizPromptDismissed && !quiz) {
+        e.preventDefault();
+        e.returnValue = '';
         setShowQuizPrompt(true);
         setHasSeenQuizPrompt(true);
-      }, 3000); // Show after 3 seconds
+        return '';
+      }
+    };
 
-      return () => clearTimeout(timer);
-    }
+    const handleVisibilityChange = () => {
+      if (document.hidden && lastModelMessage && !hasSeenQuizPrompt && !quizPromptDismissed && !quiz) {
+        setShowQuizPrompt(true);
+        setHasSeenQuizPrompt(true);
+      }
+    };
+
+    // Add event listeners for navigation detection
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [lastModelMessage, hasSeenQuizPrompt, quizPromptDismissed, quiz]);
   
   useEffect(() => {
@@ -272,11 +290,30 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
   const handleQuizPromptDismiss = () => {
     setQuizPromptDismissed(true);
     setShowQuizPrompt(false);
+    // Execute stored navigation action if it exists
+    if (navigationAction) {
+      navigationAction();
+      setNavigationAction(null);
+    }
   }
 
   const handleQuizPromptStart = () => {
     setShowQuizPrompt(false);
     handleStartQuiz();
+    // Clear navigation action since user chose to take quiz
+    setNavigationAction(null);
+  }
+
+  // Function to check if user should see quiz prompt before navigating away
+  const checkNavigationWithQuizPrompt = (navigationAction: () => void) => {
+    if (lastModelMessage && !hasSeenQuizPrompt && !quizPromptDismissed && !quiz) {
+      setShowQuizPrompt(true);
+      setHasSeenQuizPrompt(true);
+      // Store the navigation action to execute after quiz prompt
+      setNavigationAction(() => navigationAction);
+    } else {
+      navigationAction();
+    }
   }
 
   const handleBookmark = (messageIndex: number, message: ChatMessage) => {
@@ -400,7 +437,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
             <button onClick={handleStartQuiz} disabled={isReplying || isGeneratingQuiz} className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-purple-600 rounded-full hover:bg-purple-700 transition-all text-white font-bold text-sm sm:text-lg transform active:scale-95 disabled:bg-gray-300 touch-manipulation">
                 <QuizIcon className="w-5 h-5 sm:w-6 sm:h-6" /> <span>{isGeneratingQuiz ? 'Creating...' : 'Quiz Me!'}</span>
             </button>
-            <button onClick={onHome} className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-orange-500 rounded-full hover:bg-orange-600 transition-all text-white font-bold text-sm sm:text-lg transform active:scale-95 touch-manipulation">
+            <button onClick={() => checkNavigationWithQuizPrompt(onHome)} className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-orange-500 rounded-full hover:bg-orange-600 transition-all text-white font-bold text-sm sm:text-lg transform active:scale-95 touch-manipulation">
                 <HomeIcon className="w-5 h-5 sm:w-6 sm:h-6" /> <span>Home</span>
             </button>
           </div>
@@ -449,7 +486,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
       </div>
       <div className="text-center mt-6">
         <button
-          onClick={onReset}
+          onClick={() => checkNavigationWithQuizPrompt(onReset)}
           className="px-8 py-4 bg-orange-500 text-white font-bold rounded-full shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-500/50 transform hover:scale-105 active:scale-95 transition-all duration-200"
         >
           Start a New Topic
