@@ -401,7 +401,10 @@ const App: React.FC = () => {
             <header className="w-full relative top-0 left-0 right-0 z-20 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
                 <div className="flex items-center">
                   <GabuIcon className="w-8 h-8 sm:w-10 sm:h-10 text-purple-600 mr-3" />
-                  <h1 className={`text-xl sm:text-2xl lg:text-3xl font-extrabold ${headerTextColor} transition-colors`}>Gabu's Tutor</h1>
+                  <div className="flex flex-col">
+                    <h1 className={`text-xl sm:text-2xl lg:text-3xl font-extrabold ${headerTextColor} transition-colors`}>Soma AI</h1>
+                    <p className={`text-xs sm:text-sm ${headerTextColor} opacity-80`}>Gabu's Tutor Homework Assistant</p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                   <OfflineIndicator />

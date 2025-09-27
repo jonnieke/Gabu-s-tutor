@@ -1,6 +1,6 @@
 {
-  "name": "Gabu's Tutor",
-  "description": "An AI-powered tutor that scans book text using your camera and provides simple, easy-to-understand explanations in both text and audio format to help with your studies.",
+  "name": "Soma AI",
+  "description": "Gabu's Tutor Homework Assistant - An AI-powered tutor that scans book text using your camera and provides simple, easy-to-understand explanations in both text and audio format to help with your studies.",
   "requestFramePermissions": [
     "camera",
     "microphone"

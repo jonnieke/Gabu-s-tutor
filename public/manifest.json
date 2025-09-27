@@ -1,7 +1,7 @@
 {
-  "name": "Gabu's Tutor - AI Learning Assistant",
-  "short_name": "Gabu's Tutor",
-  "description": "AI-powered learning assistant that helps students understand any subject through camera scanning, voice recording, and interactive diagrams",
+  "name": "Soma AI - Gabu's Tutor Homework Assistant",
+  "short_name": "Soma AI",
+  "description": "Gabu's Tutor Homework Assistant - AI-powered learning assistant that helps students understand any subject through camera scanning, voice recording, and interactive diagrams",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F3F4F6",

@@ -1,6 +1,8 @@
-# 🎓 Gabu's Tutor - AI-Powered Learning Assistant
+# 🎓 Soma AI - Gabu's Tutor Homework Assistant
 
-**Transform your learning with Gabu's Tutor** - the smart AI assistant that helps students understand any subject through camera scanning, voice recording, and interactive diagrams. Perfect for homework help, exam prep, and personalized learning.
+**Transform your learning with Soma AI** - Gabu's Tutor Homework Assistant. The smart AI assistant that helps students understand any subject through camera scanning, voice recording, and interactive diagrams. Perfect for homework help, exam prep, and personalized learning.
+
+*"Soma" means "to learn" in Swahili - because learning is at the heart of everything we do.*
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/jonnieke/Gabu-s-tutor)
 [![Deploy with Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/jonnieke/Gabu-s-tutor)
