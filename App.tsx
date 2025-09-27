@@ -402,8 +402,8 @@ const App: React.FC = () => {
                 <div className="flex items-center">
                   <GabuIcon className="w-8 h-8 sm:w-10 sm:h-10 text-purple-600 mr-3" />
                   <div className="flex flex-col">
-                    <h1 className={`text-xl sm:text-2xl lg:text-3xl font-extrabold ${headerTextColor} transition-colors`}>Soma AI</h1>
-                    <p className={`text-xs sm:text-sm ${headerTextColor} opacity-80`}>Gabu's Tutor Homework Assistant</p>
+                    <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-extrabold ${headerTextColor} transition-colors`}>Soma AI</h1>
+                    <p className={`text-sm sm:text-base lg:text-lg font-semibold ${headerTextColor} opacity-90`}>Gabu's Tutor Homework Assistant</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
