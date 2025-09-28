@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { AppState, ChatMessage, FileAttachment, UserSettings } from './types';
-import { explainTextFromImage, explainAudio, continueChat } from './services/geminiService';
+import { explainTextFromImage, explainAudio, continueChat, getAI } from './services/geminiService';
 import Scanner from './components/Scanner';
 import TutorResponse from './components/TutorResponse';
 import Loader from './components/Loader';
@@ -17,12 +17,16 @@ import IllustrateView from './components/IllustrateView';
 import ErrorBoundary from './components/ErrorBoundary';
 import AchievementsPanel from './components/AchievementsPanel';
 import Celebration from './components/Celebration';
+import TutorialModal from './components/TutorialModal';
+import Tooltip from './components/Tooltip';
 import { HomeIcon, CameraIcon, BookIcon, UserIcon, BellIcon, UsersIcon, BrainIcon, TrophyIcon, GabuIcon } from './components/Icons';
 import { startStudySession, endStudySession, addTopicStudied, updateStreak } from './services/progressService';
 import { offlineService } from './services/offlineService';
 import { reminderService } from './services/reminderService';
 import { collaborationService } from './services/collaborationService';
 import { adaptiveLearningService } from './services/adaptiveLearningService';
+import { tutorialService } from './services/tutorialService';
+import { auth, db, storage } from './config/firebase';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
@@ -37,6 +41,7 @@ const App: React.FC = () => {
     context: '',
     language: 'en',
     voiceURI: null,
+    learningLevel: 'young',
   });
   const [recentTopics, setRecentTopics] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'home' | 'scan' | 'materials' | 'profile'>('home');
@@ -57,6 +62,8 @@ const App: React.FC = () => {
     message: '',
     isVisible: false
   });
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [currentTutorialId, setCurrentTutorialId] = useState<string | undefined>();
 
   const imageInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
@@ -80,12 +87,106 @@ const App: React.FC = () => {
     } catch (error) {
       console.warn('Failed to load recent topics:', error);
     }
+
+    // Check for available tutorials on app load
+    const nextTutorial = tutorialService.getNextTutorial();
+    if (nextTutorial) {
+      // Show welcome tutorial for first-time users
+      if (nextTutorial.id === 'welcome') {
+        setCurrentTutorialId('welcome');
+        setIsTutorialOpen(true);
+      }
+    }
   }, []);
 
   const handleSaveSettings = (newSettings: UserSettings) => {
     setUserSettings(newSettings);
     localStorage.setItem('gabu-settings', JSON.stringify(newSettings));
     setIsSettingsOpen(false);
+    
+    // Check if we should show the next tutorial after settings are saved
+    const nextTutorial = tutorialService.getNextTutorial();
+    if (nextTutorial && nextTutorial.id !== 'welcome') {
+      setCurrentTutorialId(nextTutorial.id);
+      setIsTutorialOpen(true);
+    }
+  };
+
+  const handleToggleLearningLevel = () => {
+    const newLevel = userSettings.learningLevel === 'young' ? 'advanced' : 'young';
+    const updatedSettings = { ...userSettings, learningLevel: newLevel };
+    setUserSettings(updatedSettings);
+    localStorage.setItem('gabu-settings', JSON.stringify(updatedSettings));
+  };
+
+  // Check if user is a first-timer (hasn't completed their profile)
+  const isFirstTimeUser = () => {
+    return !userSettings.name || !userSettings.grade || !userSettings.context;
+  };
+
+  // Handle first-time user actions - route to settings
+  const handleFirstTimeAction = () => {
+    if (isFirstTimeUser()) {
+      setIsSettingsOpen(true);
+      return true; // Indicates this was handled as first-time
+    }
+    return false; // User has completed profile
+  };
+
+
+  // Wrapper functions for main actions that check first-time users and trigger tutorials
+  const handleStartScan = () => {
+    if (handleFirstTimeAction()) return;
+    
+    // Check if we should show scan tutorial
+    if (tutorialService.shouldShowTutorial('scan-feature')) {
+      startTutorial('scan-feature');
+      return;
+    }
+    
+    setActiveTab('scan');
+    setAppState(AppState.SCANNING);
+  };
+
+  const handleUploadImage = () => {
+    if (handleFirstTimeAction()) return;
+    
+    // Check if we should show scan tutorial
+    if (tutorialService.shouldShowTutorial('scan-feature')) {
+      startTutorial('scan-feature');
+      return;
+    }
+    
+    imageInputRef.current?.click();
+  };
+
+  const handleUploadAudio = () => {
+    if (handleFirstTimeAction()) return;
+    
+    // Check if we should show audio tutorial
+    if (tutorialService.shouldShowTutorial('audio-features')) {
+      startTutorial('audio-features');
+      return;
+    }
+    
+    audioInputRef.current?.click();
+  };
+
+  const handleOpenIllustrate = () => {
+    if (handleFirstTimeAction()) return;
+    setIsIllustrateOpen(true);
+  };
+
+  const handleQuickAsk = (question: string) => {
+    if (handleFirstTimeAction()) return;
+    
+    // Check if we should show ask questions tutorial
+    if (tutorialService.shouldShowTutorial('ask-questions')) {
+      startTutorial('ask-questions');
+      return;
+    }
+    
+    startQuickChat(question);
   };
 
   const processTextFromImage = useCallback(async (imageDataUrl: string) => {
@@ -288,6 +389,36 @@ const App: React.FC = () => {
     setChatHistory(prev => [...prev, newModelMessage]);
   }, []);
 
+  const handleTutorialComplete = useCallback((tutorialId: string) => {
+    console.log(`Tutorial completed: ${tutorialId}`);
+    // Check if there's a next tutorial to show
+    const nextTutorial = tutorialService.getNextTutorial();
+    if (nextTutorial) {
+      setCurrentTutorialId(nextTutorial.id);
+      // Don't auto-open, let user discover naturally
+    }
+  }, []);
+
+  const handleTutorialSkip = useCallback((tutorialId: string) => {
+    console.log(`Tutorial skipped: ${tutorialId}`);
+    // Check if there's a next tutorial to show
+    const nextTutorial = tutorialService.getNextTutorial();
+    if (nextTutorial) {
+      setCurrentTutorialId(nextTutorial.id);
+      // Don't auto-open, let user discover naturally
+    }
+  }, []);
+
+  const handleTutorialClose = useCallback(() => {
+    setIsTutorialOpen(false);
+    setCurrentTutorialId(undefined);
+  }, []);
+
+  const startTutorial = useCallback((tutorialId: string) => {
+    setCurrentTutorialId(tutorialId);
+    setIsTutorialOpen(true);
+  }, []);
+
   const renderContent = () => {
     switch (appState) {
       case AppState.SCANNING:
@@ -338,16 +469,20 @@ const App: React.FC = () => {
             <input type="file" accept="audio/*" ref={audioInputRef} onChange={(e) => handleFileSelected(e, 'audio')} className="hidden" />
             {activeTab === 'home' && (
               <IdleScreen
-                onStartScan={() => { setActiveTab('scan'); setAppState(AppState.SCANNING); }}
-                onUploadImage={() => imageInputRef.current?.click()}
-                onUploadAudio={() => audioInputRef.current?.click()}
+                onStartScan={handleStartScan}
+                onUploadImage={handleUploadImage}
+                onUploadAudio={handleUploadAudio}
                 onRecordedAudio={processRecordedAudio}
-                onOpenIllustrate={() => setIsIllustrateOpen(true)}
+                onOpenIllustrate={handleOpenIllustrate}
                 onOpenSettings={() => setIsSettingsOpen(true)}
-                onQuickAsk={startQuickChat}
+                onQuickAsk={handleQuickAsk}
                 onOpenBookmarks={() => setIsBookmarksOpen(true)}
                 recentTopics={recentTopics}
-                onSelectRecent={startQuickChat}
+                onSelectRecent={handleQuickAsk}
+                userSettings={userSettings}
+                onToggleLearningLevel={handleToggleLearningLevel}
+                isFirstTimeUser={isFirstTimeUser()}
+                onStartTutorial={startTutorial}
               />
             )}
             {activeTab === 'scan' && (
@@ -403,41 +538,58 @@ const App: React.FC = () => {
                   <GabuIcon className="w-8 h-8 sm:w-10 sm:h-10 text-purple-600 mr-3" />
                   <div className="flex flex-col">
                     <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-extrabold ${headerTextColor} transition-colors`}>Soma AI</h1>
-                    <p className={`text-sm sm:text-base lg:text-lg font-semibold ${headerTextColor} opacity-90`}>Gabu's Tutor Homework Assistant</p>
+                    <div className="flex items-center gap-2">
+                      <p className={`text-sm sm:text-base lg:text-lg font-semibold ${headerTextColor} opacity-90`}>Gabu's Tutor Homework Assistant</p>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        userSettings.learningLevel === 'advanced' 
+                          ? 'bg-blue-100 text-blue-700' 
+                          : 'bg-orange-100 text-orange-700'
+                      }`}>
+                        {userSettings.learningLevel === 'advanced' ? '🎓 Advanced' : '🌟 Young Learner'}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                   <OfflineIndicator />
                   {appState === AppState.IDLE && (
                     <>
-                      <button
-                        onClick={() => setIsRemindersOpen(true)}
-                        className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
-                        aria-label="Study Reminders"
-                      >
-                        <BellIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
-                      </button>
-                      <button
-                        onClick={() => setIsCollaborativeOpen(true)}
-                        className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
-                        aria-label="Collaborative Dashboard"
-                      >
-                        <UsersIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
-                      </button>
-                      <button
-                        onClick={() => setIsAdaptiveLearningOpen(true)}
-                        className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
-                        aria-label="Adaptive Learning"
-                      >
-                        <BrainIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
-                      </button>
-                      <button
-                        onClick={() => setIsAchievementsOpen(true)}
-                        className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
-                        aria-label="Achievements"
-                      >
-                        <TrophyIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
-                      </button>
+                      <Tooltip content="Set study reminders and track your learning schedule" position="bottom">
+                        <button
+                          onClick={() => setIsRemindersOpen(true)}
+                          className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
+                          aria-label="Study Reminders"
+                        >
+                          <BellIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Collaborate with friends and share learning progress" position="bottom">
+                        <button
+                          onClick={() => setIsCollaborativeOpen(true)}
+                          className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
+                          aria-label="Collaborative Dashboard"
+                        >
+                          <UsersIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Get personalized learning recommendations based on your progress" position="bottom">
+                        <button
+                          onClick={() => setIsAdaptiveLearningOpen(true)}
+                          className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
+                          aria-label="Adaptive Learning"
+                        >
+                          <BrainIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="View your achievements, badges, and learning milestones" position="bottom">
+                        <button
+                          onClick={() => setIsAchievementsOpen(true)}
+                          className="p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
+                          aria-label="Achievements"
+                        >
+                          <TrophyIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600" />
+                        </button>
+                      </Tooltip>
                     </>
                   )}
                 </div>
@@ -447,22 +599,30 @@ const App: React.FC = () => {
             </div>
             {appState === AppState.IDLE && (
               <nav className="w-full sticky bottom-0 inset-x-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between safe-area-pb z-30">
-                <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='home'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
-                  <HomeIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
-                  <span className="font-medium">Home</span>
-                </button>
-                <button onClick={() => { setActiveTab('scan'); setAppState(AppState.SCANNING); }} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='scan'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
-                  <CameraIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
-                  <span className="font-medium">Scan</span>
-                </button>
-                <button onClick={() => setActiveTab('materials')} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='materials'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
-                  <BookIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
-                  <span className="font-medium">Materials</span>
-                </button>
-                <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='profile'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
-                  <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
-                  <span className="font-medium">Profile</span>
-                </button>
+                <Tooltip content="Main dashboard with all learning tools" position="top">
+                  <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='home'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
+                    <HomeIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
+                    <span className="font-medium">Home</span>
+                  </button>
+                </Tooltip>
+                <Tooltip content="Camera scanner for homework help" position="top">
+                  <button onClick={() => { setActiveTab('scan'); setAppState(AppState.SCANNING); }} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='scan'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
+                    <CameraIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
+                    <span className="font-medium">Scan</span>
+                  </button>
+                </Tooltip>
+                <Tooltip content="Study materials and resources" position="top">
+                  <button onClick={() => setActiveTab('materials')} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='materials'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
+                    <BookIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
+                    <span className="font-medium">Materials</span>
+                  </button>
+                </Tooltip>
+                <Tooltip content="Your profile, settings, and study progress" position="top">
+                  <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center text-xs sm:text-sm lg:text-base py-2 px-3 sm:px-4 rounded-lg touch-manipulation transition-all ${activeTab==='profile'?'text-purple-600 bg-purple-50':'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
+                    <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1"/>
+                    <span className="font-medium">Profile</span>
+                  </button>
+                </Tooltip>
               </nav>
             )}
         </div>
@@ -517,6 +677,15 @@ const App: React.FC = () => {
           message={celebration.message}
           isVisible={celebration.isVisible}
           onComplete={() => setCelebration(prev => ({ ...prev, isVisible: false }))}
+        />
+        
+        {/* Tutorial Modal */}
+        <TutorialModal
+          isOpen={isTutorialOpen}
+          onClose={handleTutorialClose}
+          tutorialId={currentTutorialId}
+          onTutorialComplete={handleTutorialComplete}
+          onTutorialSkip={handleTutorialSkip}
         />
     </div>
   );

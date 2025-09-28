@@ -52,31 +52,39 @@
     <link rel="manifest" href="/manifest.json" />
     
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#8B5CF6" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="32x32" href="/favicon-32x32.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="16x16" href="/favicon-16x16.svg" />
+    <link rel="mask-icon" href="/favicon-32x32.svg" color="#8B5CF6" />
     
     <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" />
     
     <!-- DNS Prefetch for performance -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-    <link rel="dns-prefetch" href="//cdn.tailwindcss.com" />
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS CDN for development -->
     <script>
-      // Load Tailwind CSS
+      // Load Tailwind CSS from CDN for development
       if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-        // Development mode - load from CDN
         const script = document.createElement('script');
         script.src = 'https://cdn.tailwindcss.com';
+        script.onload = () => {
+          // Configure Tailwind for this project
+          if (window.tailwind) {
+            window.tailwind.config = {
+              theme: {
+                extend: {
+                  fontFamily: {
+                    'nunito': ['Nunito', 'sans-serif'],
+                  },
+                }
+              }
+            };
+          }
+        };
         document.head.appendChild(script);
-      } else {
-        // Production mode - Tailwind will be built into the CSS
-        console.log('Production mode: Using built Tailwind CSS');
       }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -284,6 +292,42 @@
           min-height: 44px;
           min-width: 44px;
         }
+      }
+      
+      /* Fallback styles for when Tailwind doesn't load */
+      .fallback-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      
+      .fallback-button {
+        background-color: #8B5CF6;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        margin: 0.5rem;
+      }
+      
+      .fallback-button:hover {
+        background-color: #7C3AED;
+      }
+      
+      .fallback-text {
+        color: #374151;
+        font-size: 1.125rem;
+        line-height: 1.75;
+        margin: 1rem 0;
+      }
+      
+      .fallback-title {
+        color: #1F2937;
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 1rem 0;
       }
     </style>
   

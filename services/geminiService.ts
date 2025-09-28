@@ -5,7 +5,8 @@ let aiClient: GoogleGenAI | null = null;
 const getApiKey = (): string | undefined => {
   // Support either API_KEY or GEMINI_API_KEY as configured in vite.config.ts
   const key = (process.env.API_KEY as unknown as string | undefined) || (process.env.GEMINI_API_KEY as unknown as string | undefined);
-  return key;
+  // Temporary fallback to new API key for testing
+  return key || "AIzaSyCmlHJZGwAOSct5qaBAZJ9t0ANys1_hb3o";
 };
 
 export const getAI = (): GoogleGenAI => {
@@ -35,14 +36,31 @@ const getTutorPrompt = (settings: UserSettings): string => {
         persona += ` The context for their study is '${settings.context}'.`;
     }
 
-    const style = `Explain like a patient primary school tutor.
-    RULES:
-    - Use short, simple words and sentences.
-    - Output 3 to 5 numbered steps only, then one final line starting with "Answer:".
-    - No markdown, no **bold**, no headings, no code blocks.
-    - For math, use words instead of symbols: "times", "plus", "minus", "divided by".
-    - If listing types or examples, number them 1..N with one short line each.
-    - Keep total under ~8 short lines.`;
+    // Different styles based on learning level
+    let style = '';
+    if (settings.learningLevel === 'advanced') {
+        style = `Explain like a knowledgeable high school tutor.
+        RULES:
+        - Use appropriate academic vocabulary and terminology.
+        - Provide detailed, in-depth explanations with context and background.
+        - Include relevant examples, connections to other concepts, and real-world applications.
+        - For math, use proper mathematical notation and symbols when appropriate.
+        - Explain the "why" behind concepts, not just the "how".
+        - Include multiple approaches or methods when relevant.
+        - Provide comprehensive step-by-step solutions with detailed reasoning.
+        - Connect concepts to broader academic subjects and future learning.
+        - Use structured formatting with clear sections when helpful.
+        - Aim for thorough understanding rather than just quick answers.`;
+    } else {
+        style = `Explain like a patient primary school tutor.
+        RULES:
+        - Use short, simple words and sentences.
+        - Output 3 to 5 numbered steps only, then one final line starting with "Answer:".
+        - No markdown, no **bold**, no headings, no code blocks.
+        - For math, use words instead of symbols: "times", "plus", "minus", "divided by".
+        - If listing types or examples, number them 1..N with one short line each.
+        - Keep total under ~8 short lines.`;
+    }
 
     return `${persona} ${languageInstruction} ${style}`;
 }

@@ -25,6 +25,7 @@ export interface UserSettings {
   context: string; // e.g., teacher's name or subject
   language: 'en' | 'sw';
   voiceURI: string | null;
+  learningLevel: 'young' | 'advanced'; // Young learners (grade 6) vs Advanced (high school)
 }
 
 export interface QuizQuestion {
@@ -69,4 +70,35 @@ export interface LearningProgress {
   lastStudyDate: Date;
   weeklyGoal: number; // minutes per week
   weeklyProgress: number; // minutes this week
+}
+
+export interface TutorialStep {
+  id: string;
+  title: string;
+  description: string;
+  targetElement?: string; // CSS selector for element to highlight
+  position?: 'top' | 'bottom' | 'left' | 'right' | 'center';
+  action?: 'click' | 'scroll' | 'wait' | 'navigate';
+  actionTarget?: string; // What to click or where to navigate
+  image?: string; // Optional image to show
+  video?: string; // Optional video to show
+  tips?: string[]; // Additional tips
+}
+
+export interface Tutorial {
+  id: string;
+  title: string;
+  description: string;
+  steps: TutorialStep[];
+  category: 'onboarding' | 'feature' | 'advanced';
+  prerequisites?: string[]; // Other tutorials that should be completed first
+  estimatedTime?: number; // in minutes
+}
+
+export interface TutorialProgress {
+  completedTutorials: string[];
+  currentTutorial?: string;
+  currentStep?: number;
+  skippedTutorials: string[];
+  lastCompletedDate?: Date;
 }

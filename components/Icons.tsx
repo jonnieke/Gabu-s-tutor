@@ -332,3 +332,28 @@ export const TrophyIcon: React.FC<IconProps> = (props) => (
     <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V7C19 9.76 16.76 12 14 12H13V14H16C16.55 14 17 14.45 17 15S16.55 16 16 16H8C7.45 16 7 15.55 7 15S7.45 14 8 14H11V12H10C7.24 12 5 9.76 5 7V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V7C7 8.66 8.34 10 10 10H14C15.66 10 17 8.66 17 7V6H7ZM9 19H15C15.55 19 16 19.45 16 20S15.55 21 15 21H9C8.45 21 8 20.55 8 20S8.45 19 9 19ZM12 17C11.45 17 11 17.45 11 18S11.45 19 12 19S13 18.55 13 18S12.55 17 12 17Z"/>
   </svg>
 );
+
+export const ArrowLeftIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+  </svg>
+);
+
+export const ArrowRightIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+  </svg>
+);
+
+export const CheckIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+);
+
+export const SkipIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12H9" />
+  </svg>
+);

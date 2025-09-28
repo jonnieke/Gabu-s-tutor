@@ -25,6 +25,13 @@ const IllustrateView: React.FC<IllustrateViewProps> = ({ onClose, onHome, userSe
   // Generate AI-powered quiz questions and answers
   const generateEducationalQuiz = async (labels: string[], topic: string, description: string, userSettings: UserSettings): Promise<Array<{question: string, answer: string, explanation: string}>> => {
     try {
+      // Different prompts based on learning level
+      const isAdvanced = userSettings.learningLevel === 'advanced';
+      const levelDescription = isAdvanced ? 'high school and advanced level' : 'elementary/grade 6 level';
+      const complexityNote = isAdvanced 
+        ? 'Include deeper analysis, connections to other concepts, real-world applications, and critical thinking questions.'
+        : 'Use simple language, focus on basic understanding, and include fun, engaging questions.';
+
       const result = await getAI().models.generateContent({
         model: 'gemini-2.5-flash',
         contents: {
@@ -34,16 +41,19 @@ const IllustrateView: React.FC<IllustrateViewProps> = ({ onClose, onHome, userSe
 TOPIC: ${topic}
 DESCRIPTION: ${description}
 LABELS/COMPONENTS: ${labels.join(', ')}
+LEARNING LEVEL: ${levelDescription}
 
 Create 5 educational quiz questions that are:
 1. SPECIFIC to the diagram content and components
 2. EDUCATIONAL and help students learn
-3. APPROPRIATE for ${userSettings.grade || 'elementary'} grade level
-4. ENGAGING and not too easy or too hard
+3. APPROPRIATE for ${userSettings.grade || (isAdvanced ? 'high school' : 'elementary')} grade level
+4. ${isAdvanced ? 'CHALLENGING and thought-provoking' : 'ENGAGING and not too easy or too hard'}
+
+${complexityNote}
 
 For each question, provide:
 - A clear, specific question about the diagram
-- A detailed, educational answer
+- A detailed, educational answer (${isAdvanced ? 'with depth and context' : 'in simple terms'})
 - A brief explanation of why this is important
 
 Format your response EXACTLY like this:
@@ -72,7 +82,9 @@ Make sure each question is directly related to the diagram components and helps 
           }]
         },
         config: {
-          systemInstruction: "You are an expert educational quiz creator. Create engaging, specific questions that help students learn from visual diagrams. Focus on understanding, not just memorization."
+          systemInstruction: isAdvanced 
+            ? "You are an expert educational quiz creator for advanced learners. Create challenging, analytical questions that promote deep understanding, critical thinking, and connections to broader concepts. Focus on comprehension, analysis, and application rather than simple recall."
+            : "You are an expert educational quiz creator for young learners. Create engaging, age-appropriate questions that help students learn from visual diagrams. Focus on understanding, not just memorization. Use simple language and fun concepts."
         }
       });
 
