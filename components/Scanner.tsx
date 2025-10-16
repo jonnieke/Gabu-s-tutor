@@ -101,7 +101,7 @@ const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
   }
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center bg-black rounded-3xl overflow-hidden pt-safe pb-safe">
+    <div className="relative w-full h-full flex flex-col items-center justify-center bg-black rounded-3xl overflow-hidden safe-area-inset">
       <video
         ref={videoRef}
         autoPlay
@@ -113,7 +113,7 @@ const Scanner: React.FC<ScannerProps> = ({ onCapture, onCancel }) => {
       <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
         <button
           onClick={switchCamera}
-          className="p-2 rounded-full bg-black/60 text-white hover:bg-black/80 backdrop-blur-sm"
+          className="touch-target p-3 rounded-full bg-black/60 text-white hover:bg-black/80 backdrop-blur-sm"
           aria-label="Switch camera"
         >
           <SwitchCameraIcon className="w-6 h-6" />

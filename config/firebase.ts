@@ -4,17 +4,24 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBqBYxOcIBIx3BLFI6-suErpAx5nxb8TF0",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "somaai-gabu.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "somaai-gabu",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "somaai-gabu.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "317429740899",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:317429740899:web:39a02cfe21a88b218a4f56",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-G7D5GBTSQQ"
 };
 
-// Check if Firebase is configured
-const isFirebaseConfigured = Object.values(firebaseConfig).every(value => value && value !== 'undefined');
+// Check if Firebase is configured with real values (not demo values)
+const isFirebaseConfigured = Object.values(firebaseConfig).every(value => 
+  value && 
+  value !== 'undefined' && 
+  !value.includes('demo-') && 
+  !value.includes('123456789') && 
+  !value.includes('abcdef') &&
+  !value.includes('G-XXXXXXXXXX')
+);
 
 let app: any = null;
 let auth: any = null;

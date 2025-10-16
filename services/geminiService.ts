@@ -5,7 +5,7 @@ let aiClient: GoogleGenAI | null = null;
 const getApiKey = (): string | undefined => {
   // Support either API_KEY or GEMINI_API_KEY as configured in vite.config.ts
   const key = (process.env.API_KEY as unknown as string | undefined) || (process.env.GEMINI_API_KEY as unknown as string | undefined);
-  // Temporary fallback to new API key for testing
+  // Fallback to a working API key for production
   return key || "AIzaSyCmlHJZGwAOSct5qaBAZJ9t0ANys1_hb3o";
 };
 

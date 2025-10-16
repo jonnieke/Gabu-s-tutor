@@ -2,12 +2,22 @@
 export default {
   content: [
     "./index.html",
-    "./**/*.{js,ts,jsx,tsx}",
+    "./App.tsx",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       fontFamily: {
         'nunito': ['Nunito', 'sans-serif'],
+        'poppins': ['Poppins', 'sans-serif'],
+        'inter': ['Inter', 'sans-serif'],
+      },
+      colors: {
+        'sky-blue': '#6DC9FF',
+        'mint-green': '#A6F0C6',
+        'soft-yellow': '#FFF6AE',
+        'accent-purple': '#8463F5',
       },
       animation: {
         'gentle-bounce': 'gentle-bounce 2s ease-in-out infinite',

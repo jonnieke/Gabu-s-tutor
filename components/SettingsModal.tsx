@@ -44,8 +44,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onHome, 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-4 sm:p-6 relative max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 safe-area-inset" onClick={onClose}>
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-4 sm:p-6 relative max-h-[90vh] mobile-scroll overflow-y-auto" onClick={e => e.stopPropagation()}>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Settings</h2>
                 {/* First-time user notice */}
                 {(!currentSettings.name || !currentSettings.grade || !currentSettings.context) && (
@@ -71,15 +71,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onHome, 
                 <div className="space-y-3 sm:space-y-4">
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700">Your Name</label>
-                        <input type="text" id="name" value={settings.name} onChange={e => setSettings({...settings, name: e.target.value})} placeholder="e.g., Alex" className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"/>
+                        <input type="text" id="name" value={settings.name} onChange={e => setSettings({...settings, name: e.target.value})} placeholder="e.g., Alex" className="mt-1 block w-full px-3 py-3 mobile-text border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 mobile-focus"/>
                     </div>
                      <div>
                         <label htmlFor="grade" className="block text-sm font-medium text-gray-700">Grade / Class</label>
-                        <input type="text" id="grade" value={settings.grade} onChange={e => setSettings({...settings, grade: e.target.value})} placeholder="e.g., 5th Grade" className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"/>
+                        <input type="text" id="grade" value={settings.grade} onChange={e => setSettings({...settings, grade: e.target.value})} placeholder="e.g., 5th Grade" className="mt-1 block w-full px-3 py-3 mobile-text border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 mobile-focus"/>
                     </div>
                      <div>
                         <label htmlFor="context" className="block text-sm font-medium text-gray-700">Subject / Teacher</label>
-                        <input type="text" id="context" value={settings.context} onChange={e => setSettings({...settings, context: e.target.value})} placeholder="e.g., Science with Mrs. Davis" className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"/>
+                        <input type="text" id="context" value={settings.context} onChange={e => setSettings({...settings, context: e.target.value})} placeholder="e.g., Science with Mrs. Davis" className="mt-1 block w-full px-3 py-3 mobile-text border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 mobile-focus"/>
                     </div>
                      <div>
                         <fieldset>
@@ -163,7 +163,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onHome, 
                 </div>
 
                 <div className="mt-6 sm:mt-8 text-center sm:text-right">
-                    <button onClick={handleSave} className="px-6 py-2.5 bg-purple-600 text-white font-bold rounded-full shadow-lg hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-500/50 transform active:scale-95 transition-all duration-200 text-sm sm:text-base">
+                    <button onClick={handleSave} className="mobile-button px-6 py-3 bg-purple-600 text-white font-bold rounded-full shadow-lg hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-500/50 transform active:scale-95 transition-all duration-200">
                         Save Changes
                     </button>
                 </div>

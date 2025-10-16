@@ -64,7 +64,7 @@ const BookmarksView: React.FC<BookmarksViewProps> = ({ onClose, onHome, onSelect
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 safe-area-inset">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[80vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
@@ -101,13 +101,13 @@ const BookmarksView: React.FC<BookmarksViewProps> = ({ onClose, onHome, onSelect
               placeholder="Search bookmarks..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 mobile-text border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mobile-focus"
             />
           </div>
         </div>
 
         {/* Bookmarks List */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 mobile-scroll overflow-y-auto p-6">
           {filteredBookmarks.length === 0 ? (
             <div className="text-center py-12">
               <BookmarkIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -179,7 +179,7 @@ const BookmarksView: React.FC<BookmarksViewProps> = ({ onClose, onHome, onSelect
             </p>
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-purple-600 text-white font-medium rounded-full hover:bg-purple-700 transition-colors"
+              className="mobile-button px-6 py-3 bg-purple-600 text-white font-medium rounded-full hover:bg-purple-700 transition-colors"
             >
               Close
             </button>

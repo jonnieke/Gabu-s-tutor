@@ -338,7 +338,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
   }
 
   return (
-    <div className="p-3 sm:p-4 md:p-8 lg:p-12 w-full h-full flex flex-col overflow-hidden">
+    <div className="mobile-padding w-full h-full flex flex-col overflow-hidden mobile-scroll">
        <input type="file" accept="image/*,audio/*" ref={fileInputRef} onChange={handleFileSelected} className="hidden" />
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-start flex-grow min-h-0">
         <div className="flex flex-col items-center h-full">
@@ -359,7 +359,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
           )}
         </div>
         <div className="flex flex-col h-full max-h-[60vh] sm:max-h-[70vh] lg:max-h-full">
-          <div ref={chatContainerRef} className="bg-gray-100 p-3 sm:p-4 rounded-xl sm:rounded-2xl overflow-y-auto flex-grow space-y-3 sm:space-y-4">
+          <div ref={chatContainerRef} className="bg-gray-100 p-3 sm:p-4 rounded-xl sm:rounded-2xl mobile-scroll flex-grow space-y-3 sm:space-y-4">
             {chatHistory.map((msg, index) => (
                <div key={index} className={`flex flex-col w-full ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                 <div className={`flex items-end gap-2 w-full ${msg.role === 'user' ? 'justify-end' : ''}`}>
@@ -374,14 +374,14 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
                           <span className="text-sm font-medium">Audio attached</span>
                       </div>
                     )}
-                    {msg.content && <p className="text-sm sm:text-base leading-relaxed break-words">
+                    {msg.content && <p className="mobile-text leading-relaxed break-words">
                       {msg === lastModelMessage ? renderTextWithHighlight(msg.content) : msg.content}
                     </p>}
                      {msg.role === 'model' && msg.content && (
                         <div className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200">
                             <button
                                 onClick={() => handleBookmark(index, msg)}
-                                className="p-1.5 sm:p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-all duration-200 touch-manipulation"
+                                className="touch-target p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-all duration-200 touch-manipulation"
                                 aria-label="Bookmark this explanation"
                             >
                                 {bookmarkedMessages.has(index) ? (
@@ -392,7 +392,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
                             </button>
                             <button
                                 onClick={() => handleCopy(msg.content, index)}
-                                className="p-1.5 sm:p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-all duration-200 touch-manipulation"
+                                className="touch-target p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-all duration-200 touch-manipulation"
                                 aria-label={copiedMessageIndex === index ? "Copied" : "Copy message"}
                             >
                                 {copiedMessageIndex === index ? (
@@ -463,7 +463,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
                 </div>
             )}
           <form onSubmit={handleFormSubmit} className="flex items-center gap-2 mt-2">
-             <button type="button" onClick={() => fileInputRef.current?.click()} aria-label="Attach a file" className="p-3 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 disabled:bg-gray-300 transform active:scale-95 transition">
+             <button type="button" onClick={() => fileInputRef.current?.click()} aria-label="Attach a file" className="touch-target p-3 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 disabled:bg-gray-300 transform active:scale-95 transition">
               <AttachmentIcon className="w-6 h-6" />
             </button>
             <input
@@ -473,12 +473,12 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
               placeholder="Ask a follow-up question..."
               disabled={isReplying || isRecording}
               aria-label="Your message"
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+              className="w-full px-4 py-3 mobile-text border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition mobile-focus"
             />
-            <button type="button" onClick={handleMicClick} disabled={isReplying} aria-label={isRecording ? 'Stop recording' : 'Start recording'} className={`p-3 rounded-full text-white transform active:scale-95 transition ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-indigo-500 hover:bg-indigo-600'}`}>
+            <button type="button" onClick={handleMicClick} disabled={isReplying} aria-label={isRecording ? 'Stop recording' : 'Start recording'} className={`touch-target p-3 rounded-full text-white transform active:scale-95 transition ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-indigo-500 hover:bg-indigo-600'}`}>
                 <MicrophoneIcon className="w-6 h-6"/>
             </button>
-            <button type="submit" disabled={isReplying || isRecording || (!userInput.trim() && !attachment)} aria-label="Send message" className="p-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:bg-gray-300 transform active:scale-95 transition">
+            <button type="submit" disabled={isReplying || isRecording || (!userInput.trim() && !attachment)} aria-label="Send message" className="touch-target p-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:bg-gray-300 transform active:scale-95 transition">
               <SendIcon className="w-6 h-6" />
             </button>
           </form>
@@ -487,7 +487,7 @@ const TutorResponse: React.FC<TutorResponseProps> = ({ image, chatHistory, onSen
       <div className="text-center mt-6">
         <button
           onClick={() => checkNavigationWithQuizPrompt(onReset)}
-          className="px-8 py-4 bg-orange-500 text-white font-bold rounded-full shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-500/50 transform hover:scale-105 active:scale-95 transition-all duration-200"
+          className="mobile-button px-6 py-3 bg-orange-500 text-white font-bold rounded-full shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-500/50 transform hover:scale-105 active:scale-95 transition-all duration-200"
         >
           Start a New Topic
         </button>

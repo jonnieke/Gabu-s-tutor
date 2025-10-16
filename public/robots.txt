@@ -1,33 +1,31 @@
 User-agent: *
 Allow: /
 
-# Sitemap location
-Sitemap: https://gabus-tutor.com/sitemap.xml
+# Sitemap
+Sitemap: https://somaai-gabu.web.app/sitemap.xml
 
-# Crawl-delay for respectful crawling
+# Crawl-delay for better server performance
 Crawl-delay: 1
 
-# Allow all search engines to access all content
-Disallow:
-
-# Block access to admin or private areas (if any)
+# Disallow admin or private areas (if any)
 # Disallow: /admin/
 # Disallow: /private/
 
-# Allow access to static assets
-Allow: /assets/
-Allow: /images/
-Allow: /css/
-Allow: /js/
-
-# Block access to API endpoints that don't need indexing
-Disallow: /api/
-Disallow: /_next/
-Disallow: /node_modules/
-
-# Allow access to main pages
+# Allow all search engines to index the site
+User-agent: Googlebot
 Allow: /
-Allow: /about
-Allow: /features
-Allow: /help
-Allow: /contact
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /

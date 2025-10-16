@@ -157,7 +157,7 @@ const MaterialsLibrary: React.FC = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 h-full overflow-y-auto pb-20 sm:pb-24">
+    <div className="mobile-padding h-full mobile-scroll overflow-y-auto pb-20 sm:pb-24">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
@@ -180,7 +180,7 @@ const MaterialsLibrary: React.FC = () => {
                 placeholder="Search materials..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 mobile-text border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mobile-focus"
               />
             </div>
 
@@ -189,7 +189,7 @@ const MaterialsLibrary: React.FC = () => {
               <select
                 value={selectedSubject}
                 onChange={(e) => setSelectedSubject(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 mobile-text border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mobile-focus"
               >
                 {subjects.map(subject => (
                   <option key={subject} value={subject}>
@@ -204,7 +204,7 @@ const MaterialsLibrary: React.FC = () => {
               <select
                 value={selectedGrade}
                 onChange={(e) => setSelectedGrade(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 mobile-text border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mobile-focus"
               >
                 {grades.map(grade => (
                   <option key={grade} value={grade}>
@@ -266,11 +266,11 @@ const MaterialsLibrary: React.FC = () => {
               {/* Actions */}
               <div className="px-6 pb-6">
                 <div className="flex gap-3">
-                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 text-white font-medium rounded-full hover:bg-purple-700 transition-colors">
+                  <button className="mobile-button flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 text-white font-medium rounded-full hover:bg-purple-700 transition-colors">
                     <PlayIcon className="w-4 h-4" />
                     Start
                   </button>
-                  <button className="px-4 py-3 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors">
+                  <button className="touch-target px-4 py-3 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors">
                     <DownloadIcon className="w-4 h-4" />
                   </button>
                 </div>

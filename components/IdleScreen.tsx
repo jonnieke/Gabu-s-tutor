@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { SettingsIcon, GabuIcon, CameraIcon, ImageIcon, AudioIcon, SendIcon, BookmarkFilledIcon, IllustrateIcon, MicrophoneIcon } from './Icons';
+import { SettingsIcon, GabuIcon, CameraIcon, ImageIcon, AudioIcon, SendIcon, BookmarkFilledIcon, IllustrateIcon, MicrophoneIcon, CpuChipIcon, HeartIcon } from './Icons';
 import ProgressRing from './ProgressRing';
 import AudioRecordingModal from './AudioRecordingModal';
 import Tooltip from './Tooltip';
+import KnowledgeBase from './KnowledgeBase';
 import { getProgress } from '../services/progressService';
 import { LearningProgress } from '../types';
 import { tutorialService } from '../services/tutorialService';
@@ -31,6 +32,7 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
   const [question, setQuestion] = useState('');
   const [progress, setProgress] = useState<LearningProgress | null>(null);
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
+  const [isKnowledgeBaseOpen, setIsKnowledgeBaseOpen] = useState(false);
   
   const suggestions = [
     'Explain photosynthesis simply',
@@ -96,7 +98,7 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/85 to-white/70"></div>
       </div>
       
-      <div className="relative z-10 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 lg:p-12 min-h-screen overflow-y-auto text-center pb-20 sm:pb-24 lg:pb-32">
+      <div className="relative z-10 flex flex-col items-center justify-center mobile-padding min-h-screen mobile-scroll text-center pb-20 sm:pb-24 lg:pb-32">
         <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-2">
           {/* Learning Level Toggle */}
           {userSettings && onToggleLearningLevel && (
@@ -134,10 +136,10 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
               <div className="absolute top-8 left-1/4 text-lg animate-ping delay-3000">🌟</div>
             </div>
             
-            <h1 id="hero-heading" className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-blue-600 to-green-600 animate-fade-in">
+            <h1 id="hero-heading" className="responsive-text-xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-blue-600 to-green-600 animate-fade-in">
               Making homework easy, step-by-step! 🎯
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-gray-700 mb-6 max-w-4xl mx-auto font-medium">
+            <p className="responsive-text-base sm:text-lg lg:text-xl xl:text-2xl text-gray-700 mb-6 max-w-4xl mx-auto font-medium">
                 Hey there! I'm Gabu, your super smart homework buddy! 🤖✨ Just snap a photo, ask me anything, and I'll make learning super fun and easy to understand! 🚀
             </p>
 
@@ -169,13 +171,13 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
             </div>
 
             {/* Enhanced Input Method Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 w-full mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 w-full mb-8">
                 <Tooltip content="Take a photo of your homework and get instant step-by-step explanations" position="top">
                   <div className="flex flex-col items-center w-full group">
                   <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-lg sm:text-xl border-4 border-white shadow-lg mb-[-16px] sm:mb-[-20px] z-10 group-hover:scale-110 transition-transform duration-300">1</div>
                   <button
                       onClick={onStartScan}
-                      className={`flex flex-col items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 pt-6 sm:pt-8 pb-4 sm:pb-5 bg-gradient-to-br from-orange-500 to-red-500 text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-orange-500/50 transform hover:scale-105 hover:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation w-full border-2 border-orange-400/20 ${isFirstTimeUser ? 'animate-pulse' : ''}`}
+                      className={`mobile-button flex flex-col items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 pt-5 sm:pt-6 pb-3 sm:pb-4 bg-gradient-to-br from-orange-500 to-red-500 text-white font-bold responsive-text-sm rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-orange-500/50 transform hover:scale-105 hover:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation w-full border-2 border-orange-400/20 ${isFirstTimeUser ? 'animate-pulse' : ''}`}
                   >
                       <CameraIcon className="w-6 h-6 sm:w-8 sm:h-8 group-hover:animate-pulse"/>
                       <span>Scan n Learn</span>
@@ -188,7 +190,7 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
                   <div className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-lg sm:text-xl border-4 border-white shadow-lg mb-[-16px] sm:mb-[-20px] z-10 group-hover:scale-110 transition-transform duration-300">2</div>
                   <button
                       onClick={handleRecordAudio}
-                      className={`flex flex-col items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 pt-6 sm:pt-8 pb-4 sm:pb-5 bg-gradient-to-br from-indigo-500 to-blue-500 text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/50 transform hover:scale-105 hover:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation w-full border-2 border-indigo-400/20 ${isFirstTimeUser ? 'animate-pulse' : ''}`}
+                      className={`mobile-button flex flex-col items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 pt-5 sm:pt-6 pb-3 sm:pb-4 bg-gradient-to-br from-indigo-500 to-blue-500 text-white font-bold responsive-text-sm rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/50 transform hover:scale-105 hover:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation w-full border-2 border-indigo-400/20 ${isFirstTimeUser ? 'animate-pulse' : ''}`}
                   >
                       <MicrophoneIcon className="w-6 h-6 sm:w-8 sm:h-8 group-hover:animate-pulse"/>
                       <span>Record Audio</span>
@@ -201,7 +203,7 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
                   <div className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-lg sm:text-xl border-4 border-white shadow-lg mb-[-16px] sm:mb-[-20px] z-10 group-hover:scale-110 transition-transform duration-300">3</div>
                   <button
                       onClick={onUploadImage}
-                      className={`flex flex-col items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 pt-6 sm:pt-8 pb-4 sm:pb-5 bg-gradient-to-br from-teal-500 to-cyan-500 text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-teal-500/50 transform hover:scale-105 hover:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation w-full border-2 border-teal-400/20 ${isFirstTimeUser ? 'animate-pulse' : ''}`}
+                      className={`mobile-button flex flex-col items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 pt-5 sm:pt-6 pb-3 sm:pb-4 bg-gradient-to-br from-teal-500 to-cyan-500 text-white font-bold responsive-text-sm rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-teal-500/50 transform hover:scale-105 hover:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation w-full border-2 border-teal-400/20 ${isFirstTimeUser ? 'animate-pulse' : ''}`}
                   >
                       <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 group-hover:animate-pulse"/>
                       <span>Upload Image</span>
@@ -214,7 +216,7 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
                   <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-lg sm:text-xl border-4 border-white shadow-lg mb-[-16px] sm:mb-[-20px] z-10 group-hover:scale-110 transition-transform duration-300">4</div>
                   <button
                       onClick={onOpenIllustrate}
-                      className={`flex flex-col items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 pt-6 sm:pt-8 pb-4 sm:pb-5 bg-gradient-to-br from-green-500 to-emerald-500 text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-green-500/50 transform hover:scale-105 hover:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation w-full border-2 border-green-400/20 ${isFirstTimeUser ? 'animate-pulse' : ''}`}
+                      className={`mobile-button flex flex-col items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 pt-5 sm:pt-6 pb-3 sm:pb-4 bg-gradient-to-br from-green-500 to-emerald-500 text-white font-bold responsive-text-sm rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-green-500/50 transform hover:scale-105 hover:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation w-full border-2 border-green-400/20 ${isFirstTimeUser ? 'animate-pulse' : ''}`}
                   >
                       <IllustrateIcon className="w-6 h-6 sm:w-8 sm:h-8 group-hover:animate-pulse"/>
                       <span>Create Diagram</span>
@@ -227,7 +229,7 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
                   <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-lg sm:text-xl border-4 border-white shadow-lg mb-[-16px] sm:mb-[-20px] z-10 group-hover:scale-110 transition-transform duration-300">5</div>
                   <button
                       onClick={handleUploadAudio}
-                      className={`flex flex-col items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 pt-6 sm:pt-8 pb-4 sm:pb-5 bg-gradient-to-br from-purple-500 to-pink-500 text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-500/50 transform hover:scale-105 hover:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation w-full border-2 border-purple-400/20 ${isFirstTimeUser ? 'animate-pulse' : ''}`}
+                      className={`mobile-button flex flex-col items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 pt-5 sm:pt-6 pb-3 sm:pb-4 bg-gradient-to-br from-purple-500 to-pink-500 text-white font-bold responsive-text-sm rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-500/50 transform hover:scale-105 hover:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation w-full border-2 border-purple-400/20 ${isFirstTimeUser ? 'animate-pulse' : ''}`}
                   >
                       <AudioIcon className="w-6 h-6 sm:w-8 sm:h-8 group-hover:animate-pulse"/>
                       <span>Upload Audio</span>
@@ -251,16 +253,16 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="What would you like to learn? 🤔"
-                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-full border-2 border-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-300/50 focus:border-purple-400 bg-white/80 transition-all duration-300"
+                  className="flex-1 px-3 sm:px-4 py-3 sm:py-3 mobile-text rounded-full border-2 border-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-300/50 focus:border-purple-400 bg-white/80 transition-all duration-300 mobile-focus"
                   aria-label="Ask a question"
                 />
-                <button onClick={() => submitQuickAsk()} aria-label="Send question" className="p-2 sm:p-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:from-purple-700 hover:to-pink-700 transform active:scale-95 hover:scale-105 transition-all duration-300 shadow-md">
+                <button onClick={() => submitQuickAsk()} aria-label="Send question" className="touch-target p-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:from-purple-700 hover:to-pink-700 transform active:scale-95 hover:scale-105 transition-all duration-300 shadow-md">
                   <SendIcon className="w-5 h-5 sm:w-6 sm:h-6"/>
                 </button>
               </div>
               <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3 justify-center">
                 {suggestions.slice(0, 2).map((s, i) => (
-                  <button key={i} onClick={() => submitQuickAsk(s)} className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full bg-gradient-to-r from-purple-100 to-pink-100 hover:from-purple-200 hover:to-pink-200 text-gray-700 border border-purple-200 hover:border-purple-300 transition-all duration-300 hover:scale-105 hover:shadow-sm font-medium">
+                  <button key={i} onClick={() => submitQuickAsk(s)} className="touch-target px-3 py-2 responsive-text-xs rounded-full bg-gradient-to-r from-purple-100 to-pink-100 hover:from-purple-200 hover:to-pink-200 text-gray-700 border border-purple-200 hover:border-purple-300 transition-all duration-300 hover:scale-105 hover:shadow-sm font-medium">
                     {s}
                   </button>
                 ))}
@@ -298,6 +300,48 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
                 </div>
               </div>
             )}
+
+            {/* Knowledge Base Section */}
+            <div className="mt-6 w-full max-w-5xl mx-auto">
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-4 sm:p-6 border border-blue-200/50 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <CpuChipIcon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-base sm:text-lg lg:text-xl font-extrabold text-gray-800">🧠 Knowledge Base</h2>
+                      <p className="text-xs sm:text-sm text-gray-600">Discover how AI is reshaping our world</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsKnowledgeBaseOpen(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-md"
+                  >
+                    Explore
+                  </button>
+                </div>
+                
+                {/* Mini scrolling preview */}
+                <div className="bg-white rounded-xl p-4 shadow-sm">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                      <HeartIcon className="w-5 h-5 text-red-500" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-gray-800">AI in Medical Diagnosis</h3>
+                      <p className="text-xs text-gray-600">AI can now detect diseases from medical images with 95% accuracy</p>
+                    </div>
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Medicine</span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2 text-xs text-gray-500">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span>Auto-updating • Click to learn more</span>
+                  </div>
+                </div>
+              </div>
+            </div>
         </div>
       </div>
 
@@ -306,6 +350,12 @@ const IdleScreen: React.FC<IdleScreenProps> = ({ onStartScan, onUploadImage, onU
         isOpen={isRecordingModalOpen}
         onClose={() => setIsRecordingModalOpen(false)}
         onAudioRecorded={handleRecordedAudio}
+      />
+
+      {/* Knowledge Base Modal */}
+      <KnowledgeBase
+        isOpen={isKnowledgeBaseOpen}
+        onClose={() => setIsKnowledgeBaseOpen(false)}
       />
     </div>
   );

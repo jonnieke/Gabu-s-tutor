@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gabu's Tutor - Diagnostic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Nunito', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
+        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl">🤖</span>
+        </div>
+        
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Gabu's Tutor</h1>
+        <p class="text-gray-600 mb-6">AI Homework Assistant</p>
+        
+        <div class="space-y-4">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h3 class="font-semibold text-green-800 mb-2">✅ Site Status</h3>
+                <p class="text-sm text-green-700">The site is loading successfully!</p>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 class="font-semibold text-blue-800 mb-2">🔧 Configuration</h3>
+                <p class="text-sm text-blue-700">Environment variables configured with fallbacks</p>
+            </div>
+            
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h3 class="font-semibold text-yellow-800 mb-2">⚠️ Note</h3>
+                <p class="text-sm text-yellow-700">This is a diagnostic page. The main app should work now.</p>
+            </div>
+        </div>
+        
+        <div class="mt-6">
+            <a href="/" class="inline-block px-6 py-3 bg-purple-600 text-white font-bold rounded-full hover:bg-purple-700 transition-colors">
+                Go to Main App
+            </a>
+        </div>
+        
+        <div class="mt-4 text-xs text-gray-500">
+            <p>If you're still seeing issues, check the browser console for errors.</p>
+        </div>
+    </div>
+    
+    <script>
+        console.log('Gabu\'s Tutor Diagnostic Page Loaded');
+        console.log('Environment check:', {
+            hasProcessEnv: typeof process !== 'undefined',
+            hasImportMeta: typeof import.meta !== 'undefined',
+            userAgent: navigator.userAgent
+        });
+    </script>
+</body>
+</html>

@@ -357,3 +357,94 @@ export const SkipIcon: React.FC<IconProps> = (props) => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M21 12H9" />
   </svg>
 );
+
+export const ShieldIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"/>
+  </svg>
+);
+
+export const HeartIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5C22 12.27 18.6 15.36 13.45 20.03L12 21.35Z"/>
+  </svg>
+);
+
+export const CpuChipIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M16 4H8C6.9 4 6 4.9 6 6V18C6 19.1 6.9 20 8 20H16C17.1 20 18 19.1 18 18V6C18 4.9 17.1 4 16 4ZM16 18H8V6H16V18ZM10 8H14V10H10V8ZM10 12H14V14H10V12ZM10 16H14V18H10V16ZM4 8H6V16H4V8ZM18 8H20V16H18V8Z"/>
+  </svg>
+);
+
+export const BeakerIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19ZM7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H15V17H7V15Z"/>
+  </svg>
+);
+
+export const PaintBrushIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M7 14C5.9 14 5 14.9 5 16S5.9 18 7 18 9 17.1 9 16 8.1 14 7 14ZM7 16C6.4 16 6 15.6 6 15S6.4 14 7 14 8 14.4 8 15 7.6 16 7 16ZM12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2ZM12 20C7.6 20 4 16.4 4 12S7.6 4 12 4 20 7.6 20 12 16.4 20 12 20ZM18.5 6.5L13 12L12 11L17.5 5.5L18.5 6.5Z"/>
+  </svg>
+);
+
+export const GlobeAltIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17.93C13 17.93 11.5 17.5 11.5 15.5C11.5 14.5 12.5 13.5 12.5 13.5C13.5 12.5 13.5 11.5 13.5 10.5C13.5 9.5 12.5 8.5 12.5 8.5C11.5 7.5 11.5 6.5 11.5 5.5C11.5 3.5 13 3.07 13 3.07C16.61 4.05 19.5 7.03 20.24 10.5C19.5 13.97 16.61 16.95 13 17.93ZM10.5 5.5C10.5 6.5 10.5 7.5 9.5 8.5C9.5 8.5 8.5 9.5 8.5 10.5C8.5 11.5 9.5 12.5 9.5 12.5C10.5 13.5 10.5 14.5 10.5 15.5C10.5 17.5 9 17.93 9 17.93C5.39 16.95 2.5 13.97 1.76 10.5C2.5 7.03 5.39 4.05 9 3.07C9 3.07 10.5 3.5 10.5 5.5Z"/>
+  </svg>
+);
+
+export const RocketLaunchIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 2.5C12 2.5 6.5 6.5 6.5 12C6.5 13.5 7 15 8 16C9 17 10.5 17.5 12 17.5C13.5 17.5 15 17 16 16C17 15 17.5 13.5 17.5 12C17.5 6.5 12 2.5 12 2.5ZM12 15.5C10.6 15.5 9.5 14.4 9.5 13S10.6 10.5 12 10.5S14.5 11.6 14.5 13S13.4 15.5 12 15.5ZM12 9C10.9 9 10 8.1 10 7S10.9 5 12 5S14 5.9 14 7S13.1 9 12 9ZM8 18L9 19L12 16L15 19L16 18L13 15L8 18Z"/>
+  </svg>
+);
+
+export const BookOpenIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2ZM12 4.5L11.5 7.5L8.5 8L11.5 8.5L12 11.5L12.5 8.5L15.5 8L12.5 7.5L12 4.5ZM4 10L6 10.5L4 11V10ZM20 10V11L18 10.5L20 10ZM12 13L10 13.5L12 14L14 13.5L12 13ZM8 15L6 15.5L8 16L10 15.5L8 15ZM16 15L14 15.5L16 16L18 15.5L16 15Z"/>
+  </svg>
+);
+
+// AI Technology Icons
+export const RobotIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 2C13.1 2 14 2.9 14 4V6H16C17.1 6 18 6.9 18 8V18C18 19.1 17.1 20 16 20H8C6.9 20 6 19.1 6 18V8C6 6.9 6.9 6 8 6H10V4C10 2.9 10.9 2 12 2ZM12 4V6H12V4ZM8 8V18H16V8H8ZM9 10H11V12H9V10ZM13 10H15V12H13V10ZM9 14H11V16H9V14ZM13 14H15V16H13V14ZM12 9C11.4 9 11 9.4 11 10S11.4 11 12 11 13 10.6 13 10 12.6 9 12 9Z"/>
+  </svg>
+);
+
+export const NeuralNetworkIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20ZM8 8C6.9 8 6 8.9 6 10S6.9 12 8 12 10 11.1 10 10 9.1 8 8 8ZM16 8C14.9 8 14 8.9 14 10S14.9 12 16 12 18 11.1 18 10 17.1 8 16 8ZM8 12C6.9 12 6 12.9 6 14S6.9 16 8 16 10 15.1 10 14 9.1 12 8 12ZM16 12C14.9 12 14 12.9 14 14S14.9 16 16 16 18 15.1 18 14 17.1 12 16 12ZM12 14C10.9 14 10 14.9 10 16S10.9 18 12 18 14 17.1 14 16 13.1 14 12 14Z"/>
+  </svg>
+);
+
+export const DataFlowIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M3 13H5V11H3V13ZM7 13H9V11H7V13ZM11 13H13V11H11V13ZM15 13H17V11H15V13ZM19 13H21V11H19V13ZM3 17H5V15H3V17ZM7 17H9V15H7V17ZM11 17H13V15H11V17ZM15 17H17V15H15V17ZM19 17H21V15H19V17ZM3 9H5V7H3V9ZM7 9H9V7H7V9ZM11 9H13V7H11V9ZM15 9H17V7H15V9ZM19 9H21V7H19V9ZM3 5H5V3H3V5ZM7 5H9V3H7V5ZM11 5H13V3H11V5ZM15 5H17V3H15V5ZM19 5H21V3H19V5Z"/>
+  </svg>
+);
+
+export const AlgorithmIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M9 3H15V5H9V3ZM11 7H13V9H11V7ZM9 11H15V13H9V11ZM11 15H13V17H11V15ZM9 19H15V21H9V19ZM7 5H5V7H7V5ZM7 9H5V11H7V9ZM7 13H5V15H7V13ZM7 17H5V19H7V17ZM17 5H19V7H17V5ZM17 9H19V11H17V9ZM17 13H19V15H17V13ZM17 17H19V19H17V17ZM12 1C13.1 1 14 1.9 14 3V21C14 22.1 13.1 23 12 23S10 22.1 10 21V3C10 1.9 10.9 1 12 1Z"/>
+  </svg>
+);
+
+export const MachineLearningIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2ZM12 4.5L11.5 7.5L8.5 8L11.5 8.5L12 11.5L12.5 8.5L15.5 8L12.5 7.5L12 4.5ZM4 10L6 10.5L4 11V10ZM20 10V11L18 10.5L20 10ZM12 13L10 13.5L12 14L14 13.5L12 13ZM8 15L6 15.5L8 16L10 15.5L8 15ZM16 15L14 15.5L16 16L18 15.5L16 15Z"/>
+  </svg>
+);
+
+export const QuantumComputingIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20ZM8 8C6.9 8 6 8.9 6 10S6.9 12 8 12 10 11.1 10 10 9.1 8 8 8ZM16 8C14.9 8 14 8.9 14 10S14.9 12 16 12 18 11.1 18 10 17.1 8 16 8ZM8 12C6.9 12 6 12.9 6 14S6.9 16 8 16 10 15.1 10 14 9.1 12 8 12ZM16 12C14.9 12 14 12.9 14 14S14.9 16 16 16 18 15.1 18 14 17.1 12 16 12ZM12 14C10.9 14 10 14.9 10 16S10.9 18 12 18 14 17.1 14 16 13.1 14 12 14Z"/>
+  </svg>
+);
+
+export const BlockchainIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2ZM12 4.5L11.5 7.5L8.5 8L11.5 8.5L12 11.5L12.5 8.5L15.5 8L12.5 7.5L12 4.5ZM4 10L6 10.5L4 11V10ZM20 10V11L18 10.5L20 10ZM12 13L10 13.5L12 14L14 13.5L12 13ZM8 15L6 15.5L8 16L10 15.5L8 15ZM16 15L14 15.5L16 16L18 15.5L16 15Z"/>
+  </svg>
+);
